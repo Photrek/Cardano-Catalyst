@@ -1,36 +1,35 @@
 ## Describe your solution to the problem
 Design and evaluate a variety of voting saturation and aggregation algorithms that balances the influence of small and large stakeholders.
 
-Relevant experience
+## Relevant experience
 The Photrek team includes expertise in modeling complex systems, simulating majority vote dynamics, and designing governance policies.
 
 Website/GitHub repository (not required) https://photrek.world
-Detailed plan (not required) - Fill in here any additional details
-Overview
+## Detailed plan (not required) - Fill in here any additional details
+### Overview
 
 Governance of a blockchain requires balancing the rights and responsibilities of users, developers, sponsors, and investors. Ensuring the integrity of decentralized systems is particularly challenging given the tendency of economic systems to evolve toward power-law distributions of wealth that enable power to concentrate toward a few actors. Cardano's innovative saturation algorithm for stakepool incentives has made a significant contribution to establishing the most decentralized cryptocurrency validation process. The design of a system to aggregate and saturate the governance voting process would have a similar impact on developing a vibrate, diverse community of stakeholders overseeing the development of the Cardano ecosystem.
 
-Proposed Outcomes
+### Proposed Outcomes
 
 Design protocols for the Cardano voting process which will incentivize a diversity of contributors.
 Provide analysis regarding how the saturation of voting influence would ensure that small stakeholders are incentivized to participate while ensuring that strongly-opinionated minorities do not unduly thwart majority stakeholder opinions.
 Develop a plan for simulating decentralized majority-vote dynamics so that proposed voting policies can be rigorously analyzed, providing the community with guidance on expected outcomes as governance policies are developed and evaluated.
-Methodology
+
+### Methodology
 
 Governance is an important principle of any enterprise, whether a private business, government entity or non-profit organization. To ensure fair and high-quality decision-making, voting needs to be fair, and it needs to represent all involved parties impartially. Modeling opinion dynamics and voting processes is a complex task since it involves people, and people are not always rational. In modern-day democracies, opinions are shaped by transparent dialogue and majority-based voting is the standard to make decisions about governments, elected officials, rules, and regulations that govern a country. Corporations also base governance on dialogue and voting by shareholders to make business decisions such as electing management or deciding on dividend policies. Often minority shareholders select proxies who are delegated to vote on their behalf. Non-profit organizations consider inputs from donors, internal governance structures, as well as the Board of Trustees when making important organizational or strategic decisions.
 
- 
-
 Decentralized blockchains present an opportunity to improve governance. The innovative idea of creating a business and inviting a community to participate in the governance of such a business is an approach to ensure fairness and best-practice decision-making to shape the future of the enterprise. One of the main challenges in blockchain governance is ensuring minority interest representation. Another challenge includes the possibility that a powerful minority would swing the decision-making process towards their interests, which might not be aligned with the interest of the rest of the community. Our goal is to emphasize the public interest in the decision-making process. Public opinion is important for improving and shaping important decisions, and allocating a public discussion period before the final decision is made is of utmost importance.
 To support the Cardano community in achieving the goal of high-quality governance that is responsive to the community's opinions, Photrek will develop protocols for the voting process that includes gradual saturation of voting influence per wallet. We will examine the role of aggregating votes, determining how this impacts user's experience in influencing voting outcomes. We will build on research modeling information spreading through the corporate directorship networks by taking into consideration the different strengths of information propagation depending on the number of links between the source and the target of given information within the corporate board membership network (Huang, Vodenska, et al., 2011). We will develop a plan for how agent-based modeling of voting dynamics can be used to simulate and stress test proposed modifications to the Cardano voting process. (Bertella et. al, 2017 & Vilela, et al. 2019).
-
- 
 
 The Cardano blockchain is a technological innovation of a decentralized economy that requires a well-designed network-oriented governance structure. Compared to governance in public, corporate or non-profit organizations, network-based governance introduces multi-layer decision-making processes via different stakeholder interest representation. One of the main benefits of layered decentralized governance is the possibility to implement effective risk management by influencing and mandating the correction of the system before it becomes unstable. Complex networks have been used to model such propagation mechanisms emphasizing the strength of the initial source of spreading as well as the level of the interconnectivity of the entire network (Huang, Vodenska, et. al., 2013; Curme, Vodenska, et. al., 2015; Sakamoto & Vodenska, 2017). The blockchain could introduce governance that would protect those who are at risk because the bearers of risk are also the decision-makers. This seminal change in governance structure eliminates the necessity to persuade outside governing or regulating bodies to take steps to reduce the systemic risk or prevent a collapse of an economy (Pirson & Tumbull, 2011).
 An important aspect of the blockchain economy is its radical difference from the well-established understanding of governance.
 The Decentralized Autonomous Organization (DAO) has the benefit of autonomous enforcement of contracts, following rules defined by smart contracts, representing participant interests autonomously, which reduces the possibility of fraud. In a decentralized economy, with well-defined rules, decision rights, and accountability, participants are empowered to contribute to the stability of the blockchain since they are simultaneously the contributors and the beneficiaries of the system. Blockchains are referred to as harbingers of a new economic era (Beck et al., 2018). Cryptocurrencies represent the prototype of blockchain-based organizations, residing in cyberspace, rather than in any specific institution or country. They are ideal for introducing novel approaches to governing a truly global complex organization with an efficiency of governing a simple local institution (Hsieh et al., 2017).
 
-References
+### Schedule and Budget
+
+### References
 
 Beck, R., Müller-Bloch, C., & King, J. L. (2018). Governance in the blockchain economy: A framework and research agenda. Journal of the Association for Information Systems, 19(10), 1.
 Bertella M.A., Pires F.R., Rego H.H.A., Silva J.N., Vodenska I., and Stanley H.E. Confidence and self-attribution bias in an artificial stock market, PLoS ONE 12(2): e0172258. DOI:10.1371/journal.pone.0172258 (2017)

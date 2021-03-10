@@ -27,7 +27,29 @@ The Cardano blockchain is a technological innovation of a decentralized economy 
 An important aspect of the blockchain economy is its radical difference from the well-established understanding of governance.
 The Decentralized Autonomous Organization (DAO) has the benefit of autonomous enforcement of contracts, following rules defined by smart contracts, representing participant interests autonomously, which reduces the possibility of fraud. In a decentralized economy, with well-defined rules, decision rights, and accountability, participants are empowered to contribute to the stability of the blockchain since they are simultaneously the contributors and the beneficiaries of the system. Blockchains are referred to as harbingers of a new economic era (Beck et al., 2018). Cryptocurrencies represent the prototype of blockchain-based organizations, residing in cyberspace, rather than in any specific institution or country. They are ideal for introducing novel approaches to governing a truly global complex organization with an efficiency of governing a simple local institution (Hsieh et al., 2017).
 
-### Schedule and Budget
+### Milestones, KPIs, Schedule, and Budget
+
+The Diversify Voting Influence project is planned as a 3-month effort and a budget of $14,000 USD payable in ADA. A milestone and its key performance indicators (KPI) are defined for each month of the project.
+
+Month 1 Milestone: Define aggregation and influence functions
+$5,000
+KPIs
+A literature review of voting aggregation and influence functions has been provided to the Cardano community for open review.
+3-5 models for aggregation and influence have been identified for analysis.
+Initiate engagement with Cardano community to provide input and feedback on project progress.
+
+Month 2 Milestone: Analysis of aggregation and influence functions
+$5,000
+KPIs
+Do our analytical tools provide clarity regarding the distribution of participants, aggregation pools, and influence?
+A foundation of the analysis will be generalized logarithms from the information theory of complex systems. This class of functions includes the saturation function used for stakepool influence. The KPI to measure is whether this class of functions is sufficient to define algorithms which balance security and diversity goals for governance participation.
+Have we communicated the methods and analysis in a manner that is contributing to Cardano governance plans?
+
+Month 2 Milestone: Design of majority-vote simulations for testing of protocols
+$6,000
+KPIs
+Demonstrate how Monte-Carlo simulations of social interaction and its role in shaping the voting dynamics of Cardano governance.
+How well have we engaged the Cardano community in understanding the fundamental issues and benefits of analysis and simulation in preparing for design decisions for governance protocols?
 
 ### References
 
@@ -56,4 +78,4 @@ Dr. André L. M. Vilela has investigated the dynamics of interacting agent-based
 
 Vilela developed a majority-vote simulation for the IOTA foundation evaluating the potential for cellular automata consensus. Vilela will analyze the majority-vote dynamics with saturation and aggregation, and develop a plan for agent-based simulation.
 
-Requested funds in USD 14000 (six months proposal)
+Requested funds in USD 14000

@@ -39,14 +39,14 @@ A literature review of voting aggregation and influence functions has been provi
 Initiate engagement with Cardano community to provide input and feedback on project progress.
 
 Month 2 Milestone: Analysis of aggregation and influence functions
-$5,000
+$4,000
 KPIs
 Do our analytical tools provide clarity regarding the distribution of participants, aggregation pools, and influence?
 A foundation of the analysis will be generalized logarithms from the information theory of complex systems. This class of functions includes the saturation function used for stakepool influence. The KPI to measure is whether this class of functions is sufficient to define algorithms which balance security and diversity goals for governance participation.
 Have we communicated the methods and analysis in a manner that is contributing to Cardano governance plans?
 
 Month 2 Milestone: Design of majority-vote simulations for testing of protocols
-$6,000
+$5,000
 KPIs
 Demonstrate how Monte-Carlo simulations of social interaction and its role in shaping the voting dynamics of Cardano governance.
 How well have we engaged the Cardano community in understanding the fundamental issues and benefits of analysis and simulation in preparing for design decisions for governance protocols?

@@ -51,6 +51,7 @@ Dr. Andre Vilela - Associate Professor, University of Pernambuco, Brazil - Vilel
 We are seeking an expert in the use of category theory to model complex software systems. An individual with experience with Haskell programming experience and relevant experiment in decentralized markets is preferred.
 
 Bibliography
+
 G. Angeris, H.-T. Kao, R. Chiang, C. Noyes, and T. Chitra, "An analysis of Uniswap markets," arXiv: 1911.03380 [q-fin.TR], 2019.
 
 H. Adams, N. Zinsmeister, and D. Robinson, "Uniswap v2 Core," https://uniswap.org/whitepaper.pdf, 2020.

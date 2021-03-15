@@ -52,11 +52,17 @@ We are seeking an expert in the use of category theory to model complex software
 
 Bibliography
 G. Angeris, H.-T. Kao, R. Chiang, C. Noyes, and T. Chitra, "An analysis of Uniswap markets," arXiv: 1911.03380 [q-fin.TR], 2019.
+
 H. Adams, N. Zinsmeister, and D. Robinson, "Uniswap v2 Core," https://uniswap.org/whitepaper.pdf, 2020.
+
 M. Healy and K. Williamson, Applying Category Theory to Derive Engineering Software from Encoded Knowledge, Vol. 1816. Springer, Berlin, Heidelberg, 2000.
+
 B. Goodspeed, "Formal Methods for Secure Software Construction," Saint Mary's University, Halifax, NS, 2016.
+
 S. Gebreyohannes, W. Edmonson, and A. Esterline, "Formalization of the responsive and formal design process using category theory," in 2018 Annual IEEE International Systems Conference (SysCon), 2018, pp. 1–8.
+
 A. L. M. Vilela, C. Wang, K. P. Nelson, and H. E. Stanley, "Majority-vote model for financial markets," Phys. A Stat. Mech. its Appl., vol. 515, pp. 762–770, Feb. 2019.
+
 A. L. M. Vilela and H. E. Stanley, "Effect of Strong Opinions on the Dynamics of the Majority-Vote Model," Scientific Reports, 8, 8709, Jun. 2018.
 
 ## Requested funds in USD 49000

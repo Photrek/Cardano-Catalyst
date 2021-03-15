@@ -51,6 +51,9 @@ KPIs
 Demonstrate how Monte-Carlo simulations of social interaction and its role in shaping the voting dynamics of Cardano governance.
 How well have we engaged the Cardano community in understanding the fundamental issues and benefits of analysis and simulation in preparing for design decisions for governance protocols?
 
+IP Strategy
+The project will be managed as an open-source effort using the GPL 3.0 license. A Github repository has been initiated to draft documents and code. Contributions and feedback from the Cardano community will be welcome throughout the project. https://github.com/Photrek/Cardano-Catalyst/tree/main/Diversify%20Voting%20Influence
+
 ### References
 
 Beck, R., Müller-Bloch, C., & King, J. L. (2018). Governance in the blockchain economy: A framework and research agenda. Journal of the Association for Information Systems, 19(10), 1.

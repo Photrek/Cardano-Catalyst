@@ -75,6 +75,7 @@ Masuda, N., Gibert, N., & Redner, S. (2010). Heterogeneous voter models. Physica
 Nelson, K. and Vilela, Majority-Vote Dynamics for IOTA Transaction Consensus, Final Report, 2020.
 
 Pirson, M., & Turnbull, S. (2011). Toward a more humanistic governance model: Network governance structures. Journal of Business Ethics, 99(1), 101-114.
+
 Sakamoto, Y. and Vodenska, I., Systemic risk propagation in the bank-asset network: New perspective of the Japanese banking crisis of the 1990s, Journal of Complex Networks, Oxford University Press, Vol. 5 Issue 2, pp. 315-333 DOI: 10.1093/comnet/cnw018 (2017)
 
 Vilela, André L. M., Eugene, Stanley, H. (2018) Effect of Strong Opinions on the Dynamics of the Majority-Vote Model, Scientific Reports, 8, 8709.

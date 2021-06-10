@@ -57,19 +57,32 @@ The project will be managed as an open-source effort using the GPL 3.0 license. 
 ### References
 
 Beck, R., Müller-Bloch, C., & King, J. L. (2018). Governance in the blockchain economy: A framework and research agenda. Journal of the Association for Information Systems, 19(10), 1.
+
 Bertella M.A., Pires F.R., Rego H.H.A., Silva J.N., Vodenska I., and Stanley H.E. Confidence and self-attribution bias in an artificial stock market, PLoS ONE 12(2): e0172258. DOI:10.1371/journal.pone.0172258 (2017)
+
 Curme, C., H.E. Stanley, and I. Vodenska, Coupled network approach to the predictability of financial market returns and news sentiments, International Journal of Theoretical and Applied Finance, Vol 18, No. 7, (2015)
+
 Hsieh, Y. Y., Vergne, J. P. J., & Wang, S. (2017). The internal and external governance of blockchain-based organizations: Evidence from cryptocurrencies. In Bitcoin and Beyond (Open Access) (pp. 48-68). Routledge
+
 Huang, X., Vodenska, I., Havlin, S. & H.E. Stanley, Cascading Failures in Bi-partite Graphs: Model for Systemic Risk Propagation. Nature Scientific Reports 3, 1219; DOI:10.1038/srep01219 (2013).
+
 Huang, X., Vodenska, I., F.Z. Wang, S. Havlin, and H.E. Stanley, Identifying influential directors in the United States corporate governance network. Physical Review E, Vol. 84, 046101 (2011)
+
 Kearns, M., Judd, S., Tan, J., & Wortman, J. (2009). Behavioral experiments on biased voting in networks. Proceedings of the National Academy of Sciences, 106(5), 1347-1352.
+
 Masuda, N., Gibert, N., & Redner, S. (2010). Heterogeneous voter models. Physical Review E, 82(1), 010103.
+
 Nelson, K. and Vilela, Majority-Vote Dynamics for IOTA Transaction Consensus, Final Report, 2020.
+
 Pirson, M., & Turnbull, S. (2011). Toward a more humanistic governance model: Network governance structures. Journal of Business Ethics, 99(1), 101-114.
 Sakamoto, Y. and Vodenska, I., Systemic risk propagation in the bank-asset network: New perspective of the Japanese banking crisis of the 1990s, Journal of Complex Networks, Oxford University Press, Vol. 5 Issue 2, pp. 315-333 DOI: 10.1093/comnet/cnw018 (2017)
+
 Vilela, André L. M., Eugene, Stanley, H. (2018) Effect of Strong Opinions on the Dynamics of the Majority-Vote Model, Scientific Reports, 8, 8709.
+
 Vilela, Andre L. M.; Wang, C., Nelson, K. P. and Stanley, H. E. (2019) "Majority-vote model for financial markets," Phys. A Stat. Mech. its Appl., vol. 515, pp. 762–770.
+
 Yildiz, M. E., Pagliari, R., Ozdaglar, A., & Scaglione, A. (2010, February). Voting models in random networks. In 2010 Information Theory and Applications Workshop (ITA) (pp. 1-7). IEEE.
+
 Zhang, B., Oliynykov R., and Balogun. (2019). A Treasury System for Cryptocurrencies: Enabling Better Collaborative Intelligence. In Network and Distributed System Security Symposium (NDSS).
 
 Photrek Team

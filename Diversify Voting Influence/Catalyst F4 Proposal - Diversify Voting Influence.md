@@ -45,7 +45,7 @@ Do our analytical tools provide clarity regarding the distribution of participan
 A foundation of the analysis will be generalized logarithms from the information theory of complex systems. This class of functions includes the saturation function used for stakepool influence. The KPI to measure is whether this class of functions is sufficient to define algorithms which balance security and diversity goals for governance participation.
 Have we communicated the methods and analysis in a manner that is contributing to Cardano governance plans?
 
-Month 2 Milestone: Design of majority-vote simulations for testing of protocols
+Month 3 Milestone: Design of majority-vote simulations for testing of protocols
 $5,000
 KPIs
 Demonstrate how Monte-Carlo simulations of social interaction and its role in shaping the voting dynamics of Cardano governance.

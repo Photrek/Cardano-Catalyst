@@ -1,0 +1,2216 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[    111652,       2208]
+NotebookOptionsPosition[    105308,       2105]
+NotebookOutlinePosition[    105788,       2124]
+CellTagsIndexPosition[    105745,       2121]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[TextData[StyleBox["A Plural Voting Design for Cardano\[CloseCurlyQuote]s \
+Delegated Representatives using Hyper-Plutocratic Deposits for Sybil \
+Resistance",
+ FontSize->36]], "Title",
+ CellChangeTimes->{{3.8969049876803493`*^9, 3.896905011940579*^9}, {
+  3.897454874238071*^9, 3.8974548769989223`*^9}, {3.897454913559156*^9, 
+  3.897455014658037*^9}},ExpressionUUID->"59646771-ac40-4263-b5a8-\
+46b9fb802fb1"],
+
+Cell["\<\
+Analysis of a DReps votes as a function of \[LineSeparator]Delegation, \
+Deposit, and Wallets
+
+by Kenric Nelson
+July 4, 2023\
+\>", "Subtitle",
+ CellChangeTimes->{{3.896905039510343*^9, 3.896905064162318*^9}, {
+   3.896905218639526*^9, 3.896905236632659*^9}, 3.897454565521096*^9, {
+   3.897454856574163*^9, 3.897454864551289*^9}, {3.8974550397008677`*^9, 
+   3.8974550711840153`*^9}, {3.897472617097283*^9, 3.897472625168305*^9}, {
+   3.897480645586596*^9, 
+   3.897480652349292*^9}},ExpressionUUID->"d547ec15-bed8-4072-a89e-\
+68173eea87b0"],
+
+Cell[TextData[StyleBox["This is a draft document that has not been reviewed. \
+It is being release to allow the Cardano community to examine the proposed \
+design prior to the Voltaire Workshop on July 11, 2023.",
+ FontWeight->"Bold"]], "Text",
+ CellChangeTimes->{{3.897472536434496*^9, 
+  3.897472599471065*^9}},ExpressionUUID->"f65e7e5f-82f6-4274-a1f6-\
+e48e1af08378"],
+
+Cell[TextData[{
+ "CIP - 1694 proposes one coin one vote (1c1v) as the process for Delegated \
+Representative (DRep) voting for Cardano governance. Unfortunately, 1c1v \
+cannot support the claim that Cardano is building a decentralized governance, \
+since power-law distributions of wealth and nonlinear increases in influence \
+with votes result in centralized concentration of voting power. In fact, \
+corporate governance research, which uses one share one vote (1s1v), \
+indicates that only 10%-20% of widely held shares are necessary to control \
+the decision-making; hence, the democratic requirement for disclosure of \
+owners with greater than 10% of shares.\n\nGlenn Weyl invented an alternative \
+voting method known as Plural or Quadratic Voting. It has has been \
+implemented in both democratic (one person one vote 1 p1v) and corporate (one \
+share one vote 1 s1v) settings. Plural Voting offsets the nonlinear increases \
+in voting power by weighting votes by the square-root of the resource, in \
+Cardano\[CloseCurlyQuote]s case ADA coins. The full implementation of Plural \
+Voting involves additional procedures, but a preliminary implementation for \
+Cardano\[CloseCurlyQuote]s Voltaire governance would simply apply the \
+square-root of the ADA delegated to a DRep. \n\nPlural Voting requires \
+control against splitting voting weight across multiple wallets. This is \
+usually accomplished through identity validation; however, use of \
+self-sovereign identity is not being considered for the Cardano Minimal \
+Viable Governance (MVG). Therefore, there is a need to design a method of \
+Sybil resistance that does not require identity. There is in fact research \
+deweighting wallets that have a high degree of correlation; and measures of \
+community contribution by wallet are possible. These methods have merit but \
+would require lengthy analysis to properly implement.\n\nDefined and analyzed \
+here is a method of Sybil resistance using a DReps deposit to control against \
+the benefit of wallet splitting. By limiting a DReps votes based on the \
+square of their deposit, the deposit weight acts in a hyper-plutocratic \
+manner. The DRep votes is the minimum of the Plural votes from the delegates \
+and the hyper-plutocratic votes of their deposit. This creates a competitive \
+situation in which delegates seek to spread their delegation across many \
+wallets, while DReps seek to concentrate the delegation into one wallet.\n\n\
+Aligning these two factors toward a range of 100 votes ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    SuperscriptBox["10", "4"]}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "a00aeeec-24f7-4b39-965b-cb9973268520"],
+ "ADA delegates) and ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "5"], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "515fe466-202c-4190-a09c-9ef50cae2b0c"],
+ "votes ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    SuperscriptBox["10", "10"]}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "3864cd67-4b3d-4ed5-8e3b-0263c5ec5b07"],
+ "ADA delegates) requires a normalization of the deposit function. Thus \
+votesDeposit = (10 (deposit per wallet)/(minimum ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox[
+     RowBox[{
+      RowBox[{"Deposit", ")"}], ")"}], "2"], ".", " "}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "c6ba3674-92ab-4575-b4f2-5c304e70d511"],
+ "In the examples below minDeposit = 500 ADA, like the current Catalyst \
+program. The minimum deposit enables the DRep to have 100 votes if they have \
+greater than 10,000 ADA delegated.  Each increment of 10 ADA deposit adds \
+another 100 votes which must be matched by an additional 10,000 ADA in \
+delegation.\n\nThe analysis examines the effect of using multiple wallets.  \
+For modest deposits (~5000 ADA) and large delegates (~ ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{
+     SuperscriptBox["10", "8"], ")"}], " "}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "605be5b4-731a-42e2-9d55-5a51538b55ea"],
+ "splitting the wallet reduces the number of votes. For smaller delegates (~ ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{
+     SuperscriptBox["10", "6"], ")"}], " "}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "fe40cdb3-eeb9-4196-be83-362e008fde2b"],
+ "there is some benefit to wallet splitting but only over a limited number of \
+wallets after which there are diminishing votes. A solo Rep with assets of \
+two billion who splits 10 million for deposits across ten thousand wallets \
+and the rest into the delegate pools would achieve  ~",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"5", " ", 
+    SuperscriptBox["10", "6"], " "}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "3ae3844e-a3e6-422a-aba0-c42a213dad4e"],
+ "rather than the one wallet plural votes of ~ 40,000 votes. However, the \
+initial implementation of Voltaire governance, as specified in Cardano \
+Improvement Proposal (CIP) 1694, will restrict the selection of DReps to the \
+10,000 with the most delegates.  Thus, the wealthy solo DRep trying to \
+exploit the system with just  ",
+ Cell[BoxData[
+  FormBox["200000", TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "02a0d63f-5f5b-4417-9065-7d5e3f68fb72"],
+ " delegates per wallet would have additional restrictions on their \
+participation."
+}], "Text",
+ CellChangeTimes->{{3.8974561350891523`*^9, 3.897456485018547*^9}, {
+   3.897456530311*^9, 3.8974565507804213`*^9}, {3.897456588380423*^9, 
+   3.897456808375997*^9}, {3.897456904551283*^9, 3.8974574422816267`*^9}, {
+   3.897457486468926*^9, 3.897457732172065*^9}, {3.897457822568584*^9, 
+   3.897458179028759*^9}, {3.897458527464073*^9, 3.897458588618669*^9}, {
+   3.897458622268393*^9, 3.897458679907093*^9}, {3.897458728928782*^9, 
+   3.8974587954618387`*^9}, {3.89745888234825*^9, 3.8974590756424837`*^9}, {
+   3.897468435223772*^9, 3.897468991671546*^9}, {3.897469052419126*^9, 
+   3.897469092055626*^9}, 3.897472689547501*^9, {3.897480663448456*^9, 
+   3.8974806640238743`*^9}, {3.8974807284283237`*^9, 3.897480761517872*^9}, {
+   3.897480820800612*^9, 3.897480821766445*^9}, {3.8974808809337463`*^9, 
+   3.897480881086916*^9}, {3.897481127015613*^9, 3.897481135144648*^9}, {
+   3.8974814519539137`*^9, 3.897481501666691*^9}, {3.89748156921646*^9, 
+   3.897481574020492*^9}, {3.897481622844267*^9, 3.897481624964417*^9}, {
+   3.897481715066107*^9, 3.897481735948542*^9}, {3.897481804494961*^9, 
+   3.897481815276497*^9}},ExpressionUUID->"41f8365e-1730-4787-bb3b-\
+65c643146435"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["", "Section",
+ FontSize->24]], "Title",
+ CellChangeTimes->{{3.8969051176737843`*^9, 3.896905125949617*^9}, {
+   3.896905176687104*^9, 3.8969051878083143`*^9}, {3.8969052426397247`*^9, 
+   3.896905245961088*^9}, {3.89690547298379*^9, 3.8969054752422256`*^9}, {
+   3.897454621547399*^9, 3.897454625123652*^9}, 
+   3.8974840402679863`*^9},ExpressionUUID->"45258534-d5b7-4fd8-a32a-\
+36d954a4617d"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"25e335da-3636-4e91-a1c2-4c44634f4203"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[StyleBox["Definition of Voting Weight Function", "Section",
+ FontSize->24]], "Title",
+ CellChangeTimes->{{3.8969051176737843`*^9, 3.896905125949617*^9}, {
+  3.896905176687104*^9, 3.8969051878083143`*^9}, {3.8969052426397247`*^9, 
+  3.896905245961088*^9}, {3.89690547298379*^9, 3.8969054752422256`*^9}, {
+  3.897454621547399*^9, 3.897454625123652*^9}, {3.8974844771140203`*^9, 
+  3.8974844841414747`*^9}},ExpressionUUID->"fca7c2a1-32c7-447c-9afd-\
+538ea6cdc335"],
+
+Cell[TextData[{
+ "In the defining functions, the delegate and deposit variables represent the \
+totals across all the wallets used. minDelegate and minDeposit are the \
+minimums for a wallet. For the examples shown, the minimums are set to 10 ADA \
+and 500 ADA respectively. The delegatePower sets the type of voting process \
+for the delegates; 0 is a democracy (1 wallet 1 vote), 1/2 is a Pluralism, \
+and 1 is a plutocracy (1c1v). The default used in this analysis is Pluralism \
+(1/2). The deposit power is powerDeposit/powerDelegate.  The purpose of using \
+the two variables is to allow powerDeposit =1 be the default, while providing \
+the option to explore other possibilities. With powerDeposit = 1, the deposit \
+is raised to the inverse power of the delegates. For the examples examined \
+here this is 2; i.e. a hyper-plutocratic process.\n   \nThe DRep Vote \
+function is:\n \tVotes = Min[DelegatedWeight, DepositWeight]\n \t  \nThe \
+delegate vote function is:\n\tDelegateWeight = \n\t\t",
+ Cell[BoxData[
+  FormBox[
+   TagBox[GridBox[{
+      {"\[Piecewise]", GridBox[{
+         {
+          SuperscriptBox[
+           RowBox[{"(", 
+            FractionBox["delegate", "wallets"], ")"}], "powerDelegate"], 
+          RowBox[{
+           FractionBox["delegate", "wallets"], ">=", "minDelegate"}]},
+         {"0", 
+          RowBox[{
+           FractionBox["delegate", "wallets"], "<", "minDelegate"}]}
+        },
+        AllowedDimensions->{2, Automatic},
+        Editable->True,
+        GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+        GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{1.}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.84]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}},
+        Selectable->True]}
+     },
+     GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+     GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{1.}}},
+     GridBoxSpacings->{"Columns" -> {
+         Offset[0.27999999999999997`], {
+          Offset[0.35]}, 
+         Offset[0.27999999999999997`]}, "Rows" -> {
+         Offset[0.2], {
+          Offset[0.4]}, 
+         Offset[0.2]}}],
+    "Piecewise",
+    DeleteWithContents->True,
+    Editable->False,
+    SelectWithContents->True,
+    Selectable->False,
+    StripWrapperBoxes->True], TraditionalForm]],ExpressionUUID->
+  "ef235cee-03cf-4b5e-8517-f0dafd15b9a7"],
+ "\n\t\t\nThe deposit vote function is:\n\tDepositWeight =\n\t\t",
+ Cell[BoxData[
+  FormBox[
+   TagBox[GridBox[{
+      {"\[Piecewise]", GridBox[{
+         {
+          SuperscriptBox[
+           RowBox[{"(", 
+            FractionBox[
+             RowBox[{"10", "deposit"}], "wallets"], ")"}], 
+           FractionBox["powerDeposit", "powerDelegate"]], 
+          RowBox[{
+           FractionBox["deposit", "wallets"], ">=", "minDelegate"}]},
+         {"0", 
+          RowBox[{
+           FractionBox["deposit", "wallets"], "<", "minDelegate"}]}
+        },
+        AllowedDimensions->{2, Automatic},
+        Editable->True,
+        GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+        GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{1.}}},
+        GridBoxSpacings->{"Columns" -> {
+            Offset[0.27999999999999997`], {
+             Offset[0.84]}, 
+            Offset[0.27999999999999997`]}, "Rows" -> {
+            Offset[0.2], {
+             Offset[0.4]}, 
+            Offset[0.2]}},
+        Selectable->True]}
+     },
+     GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+     GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{1.}}},
+     GridBoxSpacings->{"Columns" -> {
+         Offset[0.27999999999999997`], {
+          Offset[0.35]}, 
+         Offset[0.27999999999999997`]}, "Rows" -> {
+         Offset[0.2], {
+          Offset[0.4]}, 
+         Offset[0.2]}}],
+    "Piecewise",
+    DeleteWithContents->True,
+    Editable->False,
+    SelectWithContents->True,
+    Selectable->False,
+    StripWrapperBoxes->True], TraditionalForm]],ExpressionUUID->
+  "d96d05cd-90eb-42f8-a0a0-07f224a122d4"],
+ "\n\t\t\nThe factor 10 is a constant rather than a variable because strictly \
+speaking its not required; however, it seems more pragmatic for the minimum \
+deposit to enable 100 votes rather than 1 vote. This could be examined in the \
+future and removed as long as the DRep community understands that more than \
+the minimum will be required to enable voting."
+}], "Text",
+ CellChangeTimes->{{3.897469434306575*^9, 3.897469524727953*^9}, {
+  3.897469557885573*^9, 3.897470118179194*^9}, {3.8974701579506702`*^9, 
+  3.897470198144884*^9}, {3.897470247333784*^9, 3.89747033439774*^9}, {
+  3.8974703644741993`*^9, 3.8974703994917793`*^9}, {3.897481835622855*^9, 
+  3.89748189742774*^9}},ExpressionUUID->"5f5074db-006f-4ecb-aaa5-\
+f8696dbab643"],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"Votes", "[", 
+      RowBox[{
+      "delegate_", ",", "deposit_", ",", "minDelegate_", ",", "minDeposit_", 
+       ",", "wallets_", ",", 
+       RowBox[{"powerDelegate_", ":", "0.5"}], ",", 
+       RowBox[{"powerDeposit_", ":", "2"}]}], "]"}], ":=", 
+     RowBox[{"Min", "[", 
+      RowBox[{
+       RowBox[{"DelegateWeight", "[", 
+        RowBox[{
+        "delegate", ",", "minDelegate", ",", "wallets", ",", 
+         "powerDelegate"}], "]"}], ",", 
+       RowBox[{"DepositWeight", "[", 
+        RowBox[{
+        "deposit", ",", "minDeposit", ",", "wallets", ",", "powerDeposit"}], 
+        "]"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"DelegateWeight", "[", 
+      RowBox[{"delegate_", ",", 
+       RowBox[{"minDelegate_", ":", "10"}], ",", "wallets_", ",", 
+       RowBox[{"powerDelegate_", ":", "0.5"}]}], "]"}], ":=", 
+     RowBox[{"wallets", " ", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"delegate", "/", "wallets"}], ">=", "minDelegate"}], ",", 
+        "\[IndentingNewLine]", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"delegate", "/", "wallets"}], ")"}], "powerDelegate"], ",", 
+        "0"}], "]"}]}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"DepositWeight", "[", 
+      RowBox[{"deposit_", ",", "minDeposit_", ",", "wallets_", ",", 
+       RowBox[{"powerDelegate_", ":", "0.5"}], ",", 
+       RowBox[{"powerDeposit_", ":", "2"}]}], "]"}], ":=", 
+     "\[IndentingNewLine]", 
+     RowBox[{"wallets", " ", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"deposit", "/", "wallets"}], ">=", "minDeposit"}], ",", 
+        "\[IndentingNewLine]", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"10", " ", 
+           RowBox[{
+            RowBox[{"deposit", "/", "minDeposit"}], "/", "wallets"}]}], ")"}], 
+         RowBox[{"powerDeposit", "/", "powerDelegate"}]], ",", "0"}], 
+       "]"}]}]}], ";"}]}]}]], "Input",
+ CellChangeTimes->{{3.8969052934661007`*^9, 3.896905441327855*^9}, {
+   3.896905684689126*^9, 3.896905703700489*^9}, {3.896905749378757*^9, 
+   3.896905986172607*^9}, {3.896906030347747*^9, 3.896906206884272*^9}, {
+   3.896906847609065*^9, 3.896906849483575*^9}, {3.896907439735839*^9, 
+   3.896907450078333*^9}, {3.896907486125206*^9, 3.896907494517683*^9}, {
+   3.897019477702222*^9, 3.897019543881722*^9}, {3.89707727640854*^9, 
+   3.897077339773984*^9}, {3.897077376987958*^9, 3.8970774034727*^9}, {
+   3.897077562722747*^9, 3.897077589351734*^9}, {3.897078978867159*^9, 
+   3.8970789791193123`*^9}, {3.897079856336103*^9, 3.897079908127942*^9}, 
+   3.897080356298646*^9, {3.897081137679367*^9, 3.8970812258042107`*^9}, {
+   3.8970812771670933`*^9, 3.897081306277029*^9}, {3.8972077945852747`*^9, 
+   3.897207814396596*^9}, {3.897207882026753*^9, 3.897208012723304*^9}, {
+   3.897208057714077*^9, 3.897208058942792*^9}, {3.897208152010229*^9, 
+   3.897208194612825*^9}, {3.897208465122143*^9, 3.897208472932675*^9}, {
+   3.897208508558423*^9, 3.8972085120792637`*^9}, {3.897209327358058*^9, 
+   3.897209332770125*^9}, {3.8972099273975353`*^9, 3.89721002074936*^9}, {
+   3.8972106409500647`*^9, 3.89721064472575*^9}, {3.8972110046183147`*^9, 
+   3.897211008720908*^9}, 3.897211515398347*^9, 3.897332774640603*^9, {
+   3.897332882333542*^9, 3.89733288286548*^9}, 3.897332970500865*^9, {
+   3.8973333731122093`*^9, 3.8973333865799837`*^9}, {3.897333508159246*^9, 
+   3.897333525435751*^9}, {3.8973341784292793`*^9, 3.897334181141651*^9}, {
+   3.897334624343364*^9, 3.8973346801288137`*^9}, {3.897334997749468*^9, 
+   3.89733499824115*^9}, {3.8973354612260838`*^9, 3.89733547233803*^9}, {
+   3.897335646548203*^9, 3.897335647307435*^9}, {3.897335706198812*^9, 
+   3.897335770450989*^9}, {3.8973365268407907`*^9, 3.8973365288550243`*^9}, {
+   3.897336734807394*^9, 3.897336759164049*^9}, 3.897336931118409*^9, 
+   3.897336962528576*^9, {3.897405994121655*^9, 3.897405997953577*^9}, {
+   3.8974202865886803`*^9, 3.897420290949502*^9}, {3.897420422705882*^9, 
+   3.897420423230339*^9}, {3.8974205685636463`*^9, 3.897420574217083*^9}, {
+   3.897420991372583*^9, 3.897421022334227*^9}, 3.897469170860881*^9},
+ CellLabel->"In[1]:=",ExpressionUUID->"9a360686-5cc1-495c-8b28-b307b7f0e524"],
+
+Cell[CellGroupData[{
+
+Cell["", "Section",
+ CellChangeTimes->{{3.897454690303657*^9, 3.8974547015516872`*^9}, 
+   3.897484080483573*^9},ExpressionUUID->"59a407b4-8ac6-4fa4-b7cf-\
+f18b2de52ed4"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"6666e7eb-7d6a-4c4c-85ed-46d6aa2faaff"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Analysis  of  Delegate &  Deposit  Weight", "Section",
+ CellChangeTimes->{{3.897454690303657*^9, 3.8974547015516872`*^9}, {
+  3.897484839323296*^9, 
+  3.897484843437801*^9}},ExpressionUUID->"d18b67b8-0003-41a2-8bee-\
+7840cf29322e"],
+
+Cell["\<\
+This log-log plot shows how the voting weight for the delegate and the \
+deposit have opposite slopes as the number of wallets is increased. The \
+intersection of a delegate and deposit line represents the maximum number of \
+votes achievable by splitting delegate and deposit into multiple wallets. 
+
+The solid lines are the votes based on the delegate ADA. For 0 < \
+powerDelegate < 1 these lines slope upward as the number wallets increases. \
+The dashed lines are the votes based on the deposit ADA. For 0 < \
+powerDelegate < 1 and powerDeposit = 1, these lines slope downward as the \
+number of wallets increases.
+\
+\>", "Text",
+ CellChangeTimes->{{3.897469217629848*^9, 3.897469429185491*^9}, {
+  3.897470684767558*^9, 3.8974708092641478`*^9}, {3.897472282871806*^9, 
+  3.897472362385507*^9}},ExpressionUUID->"b5076abe-ff12-4b0e-8338-\
+a3f6b26a5402"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Manipulate", "[", 
+  RowBox[{
+   RowBox[{"LogLogPlot", "[", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"Evaluate", "[", 
+      RowBox[{"{", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{
+         RowBox[{
+          RowBox[{"Tooltip", "[", 
+           RowBox[{
+            RowBox[{"DelegateWeight", "[", 
+             RowBox[{"#", ",", "10", ",", "wallets", ",", "powerDelegate"}], 
+             "]"}], ",", "#"}], "]"}], "&"}], "/@", 
+         RowBox[{"{", 
+          RowBox[{
+           SuperscriptBox["10", "4"], ",", 
+           SuperscriptBox["10", "5"], ",", 
+           SuperscriptBox["10", "6"], ",", 
+           SuperscriptBox["10", "7"], ",", 
+           SuperscriptBox["10", "8"], ",", 
+           SuperscriptBox["10", "9"], ",", 
+           SuperscriptBox["10", "10"]}], "}"}]}], ",", "\[IndentingNewLine]", 
+        
+        RowBox[{
+         RowBox[{
+          RowBox[{"Tooltip", "[", 
+           RowBox[{
+            RowBox[{"DepositWeight", "[", 
+             RowBox[{"#", ",", "500", " ", 
+              RowBox[{"(*", "minDeposit", "*)"}], ",", "wallets", ",", 
+              "powerDelegate", ",", "1"}], " ", 
+             RowBox[{"(*", "powerDeposit", "*)"}], "]"}], ",", "#"}], "]"}], 
+          "&"}], "/@", 
+         RowBox[{"{", 
+          RowBox[{"10", ",", 
+           SuperscriptBox["10", "2"], ",", 
+           SuperscriptBox["10", "3"], ",", 
+           SuperscriptBox["10", "4"], ",", 
+           SuperscriptBox["10", "5"], ",", " ", 
+           SuperscriptBox["10", "6"]}], "}"}]}]}], "}"}], "]"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{"wallets", ",", "1", ",", "100000"}], "}"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"AxesLabel", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"\"\<Wallets\>\"", ",", "\"\<Weight\>\""}], "}"}]}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{"PlotLegends", "\[Rule]", 
+        RowBox[{"SwatchLegend", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            SuperscriptBox["10", "1"], ",", 
+            SuperscriptBox["10", "2"], ",", 
+            SuperscriptBox["10", "3"], ",", 
+            SuperscriptBox["10", "4"], ",", 
+            SuperscriptBox["10", "5"]}], "}"}], ",", 
+          RowBox[{"LegendLabel", "\[Rule]", "\"\<Deposited\>\""}]}], "]"}]}], 
+       ","}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"PlotRange", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"5", " ", 
+           SuperscriptBox["10", 
+            RowBox[{"-", "1"}]]}], ",", 
+          SuperscriptBox["10", "5"]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"5", " ", 
+           SuperscriptBox["10", 
+            RowBox[{"-", "1"}]]}], ",", 
+          SuperscriptBox["10", "8"]}], "}"}]}], "}"}]}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"PlotStyle", "\[Rule]", 
+      RowBox[{"Flatten", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Table", "[", 
+          RowBox[{"Line", ",", "7"}], "]"}], ",", 
+         RowBox[{"Table", "[", 
+          RowBox[{"Dashed", ",", "6"}], "]"}]}], "}"}], "]"}]}]}], "]"}], ",",
+    "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"powerDelegate", ",", "0.5"}], "}"}], ",", "0.01", ",", ".99"}],
+     "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{
+  3.896905520916265*^9, {3.8969062704434223`*^9, 3.8969063191836147`*^9}, {
+   3.896906372969219*^9, 3.896906558703273*^9}, {3.896906598403187*^9, 
+   3.8969066153928967`*^9}, {3.896906706993428*^9, 3.8969067077217827`*^9}, {
+   3.8969067874692593`*^9, 3.896906802981048*^9}, {3.896906868571308*^9, 
+   3.896906868633005*^9}, {3.896906905312064*^9, 3.896906908025069*^9}, {
+   3.896907013112605*^9, 3.8969070270276957`*^9}, {3.8969070624975452`*^9, 
+   3.8969071051112013`*^9}, {3.896907188318598*^9, 3.896907207715478*^9}, {
+   3.896907333943162*^9, 3.896907337383709*^9}, {3.896907373267892*^9, 
+   3.896907374315783*^9}, {3.896907647444927*^9, 3.8969076486363697`*^9}, {
+   3.8969077027762537`*^9, 3.8969077323792067`*^9}, {3.896907780209866*^9, 
+   3.8969078029524593`*^9}, {3.8969079275682497`*^9, 3.896907948311104*^9}, {
+   3.896908064117238*^9, 3.896908088832041*^9}, {3.897019580798115*^9, 
+   3.8970195814849453`*^9}, {3.897019709141786*^9, 3.897019744162919*^9}, {
+   3.897019821713418*^9, 3.897019848699358*^9}, {3.897019922281798*^9, 
+   3.8970199422554903`*^9}, {3.8970199837449903`*^9, 3.8970199887706223`*^9}, 
+   3.897020052501143*^9, {3.8970200979217863`*^9, 3.897020137459412*^9}, 
+   3.8970201678551188`*^9, {3.897020318868534*^9, 3.897020382666657*^9}, {
+   3.897020590939911*^9, 3.8970206069900417`*^9}, {3.8970206693420973`*^9, 
+   3.897020740118843*^9}, 3.8970209193026457`*^9, {3.8970211399108477`*^9, 
+   3.897021148805134*^9}, {3.897021191839469*^9, 3.897021192161847*^9}, {
+   3.897021332771801*^9, 3.8970213331563063`*^9}, {3.89702143411609*^9, 
+   3.897021436873028*^9}, {3.8970214677720013`*^9, 3.897021467903038*^9}, 
+   3.8970217424855223`*^9, 3.897078241461194*^9, {3.897208564065496*^9, 
+   3.897208617042778*^9}, 3.897208733067629*^9, {3.897208950012768*^9, 
+   3.897208950748499*^9}, {3.897208999099575*^9, 3.897209000250646*^9}, 
+   3.897209369786614*^9, {3.8972096425070257`*^9, 3.897209648009822*^9}, {
+   3.897209685750495*^9, 3.8972096955219593`*^9}, {3.8972100529143667`*^9, 
+   3.8972100676991796`*^9}, 3.8972104666942873`*^9, {3.89721075393471*^9, 
+   3.897210755405519*^9}, 3.8972109406289682`*^9, {3.8972111471614943`*^9, 
+   3.897211157180282*^9}, {3.8973326851529617`*^9, 3.8973326897398157`*^9}, {
+   3.897332744528409*^9, 3.897332744564911*^9}, {3.897332831046238*^9, 
+   3.897332853506679*^9}, {3.897332901242186*^9, 3.8973329192736607`*^9}, {
+   3.8973330109637213`*^9, 3.8973330166697817`*^9}, {3.8973332429708557`*^9, 
+   3.897333247771225*^9}, {3.897333281815207*^9, 3.897333353284906*^9}, {
+   3.8973334211987543`*^9, 3.897333437297864*^9}, {3.897333484440547*^9, 
+   3.897333492912519*^9}, {3.897333623741973*^9, 3.8973336830715523`*^9}, {
+   3.89733377127849*^9, 3.897333807532061*^9}, {3.897333999693604*^9, 
+   3.897334028221938*^9}, {3.897334077996146*^9, 3.897334086081492*^9}, {
+   3.897335502904202*^9, 3.897335557454672*^9}, {3.897337003364594*^9, 
+   3.897337003522765*^9}, {3.897337054310829*^9, 3.89733707279753*^9}, {
+   3.897337117793763*^9, 3.8973371245352993`*^9}, {3.897406033490055*^9, 
+   3.8974060502375927`*^9}, {3.897407009716425*^9, 3.897407011787112*^9}, {
+   3.897407145704851*^9, 3.897407159003807*^9}, {3.897407266926632*^9, 
+   3.897407274330779*^9}, {3.8974073658144217`*^9, 3.897407423343225*^9}, {
+   3.89740760356561*^9, 3.897407615510359*^9}, {3.897420304837244*^9, 
+   3.897420330292457*^9}, {3.8974705922479887`*^9, 3.897470613246827*^9}, {
+   3.897471221453652*^9, 3.897471224478088*^9}, {3.8974713338938828`*^9, 
+   3.8974713549627247`*^9}, {3.8974722659123373`*^9, 3.897472267156742*^9}},
+ CellLabel->"In[4]:=",ExpressionUUID->"45f2b2cf-4851-4c3d-8a0c-8f59d737f934"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`powerDelegate$$ = 0.5, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}}, 
+    Typeset`size$$ = {259.2, {78., 80.24666322002216}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, "Variables" :> {$CellContext`powerDelegate$$ = 0.5}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> LogLogPlot[
+        Evaluate[{
+          Map[Tooltip[
+            $CellContext`DelegateWeight[#, 
+             10, $CellContext`wallets, $CellContext`powerDelegate$$], #]& , {
+           10^4, 10^5, 10^6, 10^7, 10^8, 10^9, 10^10}], 
+          Map[Tooltip[
+            $CellContext`DepositWeight[#, 
+             500, $CellContext`wallets, $CellContext`powerDelegate$$, 
+             1], #]& , {
+           10, 10^2, 10^3, 10^4, 10^5, 10^6}]}], {$CellContext`wallets, 1, 
+         100000}, AxesLabel -> {"Wallets", "Weight"}, 
+        PlotRange -> {{5/10, 10^5}, {5/10, 10^8}}, PlotStyle -> Flatten[{
+           Table[Line, 7], 
+           Table[Dashed, 6]}]], 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 0.99}},
+       "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{295., {111.93650390625, 116.06349609375}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.8969066207354717`*^9, 3.89690670910655*^9, {3.896906795074527*^9, 
+   3.8969068042310877`*^9}, {3.896906853392774*^9, 3.896906870072998*^9}, 
+   3.896906909309223*^9, 3.896907027939457*^9, {3.896907191194643*^9, 
+   3.896907214888914*^9}, 3.896907338781611*^9, 3.896907375711474*^9, 
+   3.896907462837926*^9, 3.896907650257337*^9, {3.896907712528635*^9, 
+   3.896907733537249*^9}, 3.896907803901462*^9, 3.896907848557067*^9, 
+   3.896907886362801*^9, {3.896907937838101*^9, 3.896907953075425*^9}, {
+   3.896908065422864*^9, 3.8969080906540337`*^9}, 3.8970195896631203`*^9, {
+   3.897019710328127*^9, 3.897019745801157*^9}, 3.897019825055361*^9, {
+   3.8970199258013*^9, 3.8970199438755293`*^9}, 3.897019990222981*^9, 
+   3.8970200584780617`*^9, {3.897020101654016*^9, 3.897020139115924*^9}, 
+   3.8970201692934103`*^9, {3.897020337574463*^9, 3.897020383596909*^9}, {
+   3.897020593507804*^9, 3.897020608007712*^9}, {3.897020670808922*^9, 
+   3.897020741464158*^9}, 3.897020920622388*^9, {3.8970211426298428`*^9, 
+   3.8970211505409184`*^9}, 3.897021193392878*^9, 3.8970213356066008`*^9, 
+   3.8970214387701893`*^9, 3.897021469860557*^9, 3.8970217447776003`*^9, 
+   3.897078161788438*^9, 3.897078243058052*^9, 3.8970789835019913`*^9, {
+   3.897208605783596*^9, 3.897208617951663*^9}, 3.897208734053046*^9, 
+   3.897208951993196*^9, 3.8972090013887453`*^9, 3.897209374190609*^9, 
+   3.89720969967054*^9, 3.897210027227859*^9, 3.897210073591357*^9, 
+   3.897210309673448*^9, 3.897210489905843*^9, 3.897210756663189*^9, 
+   3.8972109419576893`*^9, 3.897211015691349*^9, {3.89721114962624*^9, 
+   3.8972111642449617`*^9}, 3.8972115212999153`*^9, {3.897332725248477*^9, 
+   3.897332745890503*^9}, {3.897332832321169*^9, 3.897332855098249*^9}, {
+   3.897332904635116*^9, 3.897332920092024*^9}, 3.897333017778759*^9, 
+   3.897333094405806*^9, 3.8973332522774353`*^9, {3.897333283978812*^9, 
+   3.897333380208632*^9}, {3.897333426088297*^9, 3.897333439146796*^9}, {
+   3.897333486117041*^9, 3.897333494767291*^9}, {3.897333627177766*^9, 
+   3.897333684063662*^9}, {3.897333772626923*^9, 3.897333808771022*^9}, 
+   3.897334000672022*^9, 3.897334034029291*^9, {3.897334079407134*^9, 
+   3.8973340874807158`*^9}, {3.8973355061343193`*^9, 
+   3.8973355602084093`*^9}, {3.8973369499183407`*^9, 3.897337005342751*^9}, {
+   3.8973370562151337`*^9, 3.897337074433552*^9}, 3.897337126330323*^9, {
+   3.8974060360040903`*^9, 3.8974060529085608`*^9}, 3.897407014262052*^9, 
+   3.897407160815446*^9, 3.897407276269948*^9, 3.897407429708642*^9, {
+   3.897407606154272*^9, 3.897407616473637*^9}, {3.8974203084718323`*^9, 
+   3.897420332196043*^9}, {3.8974705997222137`*^9, 3.8974706143352423`*^9}, 
+   3.897470652024021*^9, 3.897471225807972*^9, {3.89747134138083*^9, 
+   3.8974713563266497`*^9}, 3.897472270413603*^9},
+ CellLabel->"Out[4]=",ExpressionUUID->"26f248ef-f451-4f39-91a6-4baf25703646"]
+}, Open  ]],
+
+Cell["", "Text",
+ CellChangeTimes->{{3.897470509239653*^9, 3.8974705678113327`*^9}, {
+   3.8974706282580748`*^9, 3.897470642430942*^9}, {3.897472369377159*^9, 
+   3.897472437730851*^9}, {3.897482007605824*^9, 3.89748205399067*^9}, 
+   3.89748423562709*^9},ExpressionUUID->"8e83b0e8-0b3b-4e41-936e-\
+4a1d3978aa62"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"a532400f-1f6f-47fb-9973-0580c3a12af4"],
+
+Cell[TextData[{
+ "The default settings have overlap between the delegate and deposit weight, \
+facilitating Sybil resistance in the range of 100 to ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "5"], TraditionalForm]],ExpressionUUID->
+  "75abae1a-1f7d-4da1-96ea-b2ca527c246f"],
+ " votes. The delegate lines (solid) shown range from ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "3"], TraditionalForm]],ExpressionUUID->
+  "9a22ab87-f983-48c7-a4b5-b97adc59a027"],
+ " to ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "10"], TraditionalForm]],ExpressionUUID->
+  "689594dc-71b0-4d63-919d-1d5af844e4f5"],
+ " by powers of 10. The deposit lines (dashed) range from ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "3"], TraditionalForm]],ExpressionUUID->
+  "f0de4aa6-15d0-4f95-95eb-42e2f0cc99f7"],
+ " to ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "6"], TraditionalForm]],ExpressionUUID->
+  "19896685-baf6-4ee2-8f63-66f5f8f6b3f6"],
+ " by powers of 10."
+}], "Text",
+ CellChangeTimes->{{3.897470509239653*^9, 3.8974705678113327`*^9}, {
+  3.8974706282580748`*^9, 3.897470642430942*^9}, {3.897472369377159*^9, 
+  3.897472437730851*^9}, {3.897482007605824*^9, 
+  3.89748205399067*^9}},ExpressionUUID->"deea16f5-5421-4d80-a9a4-\
+885b1e58aa44"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`powerDelegate$$ = 0.5, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}}, 
+    Typeset`size$$ = {259.2, {78., 80.24666322002216}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, "Variables" :> {$CellContext`powerDelegate$$ = 0.5}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> LogLogPlot[
+        Evaluate[{
+          Map[Tooltip[
+            $CellContext`DelegateWeight[#, 
+             10, $CellContext`wallets, $CellContext`powerDelegate$$], #]& , {
+           10^4, 10^5, 10^6, 10^7, 10^8, 10^9, 10^10}], 
+          Map[Tooltip[
+            $CellContext`DepositWeight[#, 
+             500, $CellContext`wallets, $CellContext`powerDelegate$$, 
+             1], #]& , {10^3, 10^4, 10^5, 10^6}]}], {$CellContext`wallets, 1, 
+         100000}, AxesLabel -> {"Wallets", "Weight"}, 
+        PlotRange -> {{5/10, 10^5}, {5/10, 10^8}}, PlotStyle -> Flatten[{
+           Table[Line, 7], 
+           Table[Dashed, 5]}]], 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 0.99}},
+       "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{295., {119.93650390625, 124.06349609375}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.8969066207354717`*^9, 3.89690670910655*^9, {3.896906795074527*^9, 
+   3.8969068042310877`*^9}, {3.896906853392774*^9, 3.896906870072998*^9}, 
+   3.896906909309223*^9, 3.896907027939457*^9, {3.896907191194643*^9, 
+   3.896907214888914*^9}, 3.896907338781611*^9, 3.896907375711474*^9, 
+   3.896907462837926*^9, 3.896907650257337*^9, {3.896907712528635*^9, 
+   3.896907733537249*^9}, 3.896907803901462*^9, 3.896907848557067*^9, 
+   3.896907886362801*^9, {3.896907937838101*^9, 3.896907953075425*^9}, {
+   3.896908065422864*^9, 3.8969080906540337`*^9}, 3.8970195896631203`*^9, {
+   3.897019710328127*^9, 3.897019745801157*^9}, 3.897019825055361*^9, {
+   3.8970199258013*^9, 3.8970199438755293`*^9}, 3.897019990222981*^9, 
+   3.8970200584780617`*^9, {3.897020101654016*^9, 3.897020139115924*^9}, 
+   3.8970201692934103`*^9, {3.897020337574463*^9, 3.897020383596909*^9}, {
+   3.897020593507804*^9, 3.897020608007712*^9}, {3.897020670808922*^9, 
+   3.897020741464158*^9}, 3.897020920622388*^9, {3.8970211426298428`*^9, 
+   3.8970211505409184`*^9}, 3.897021193392878*^9, 3.8970213356066008`*^9, 
+   3.8970214387701893`*^9, 3.897021469860557*^9, 3.8970217447776003`*^9, 
+   3.897078161788438*^9, 3.897078243058052*^9, 3.8970789835019913`*^9, {
+   3.897208605783596*^9, 3.897208617951663*^9}, 3.897208734053046*^9, 
+   3.897208951993196*^9, 3.8972090013887453`*^9, 3.897209374190609*^9, 
+   3.89720969967054*^9, 3.897210027227859*^9, 3.897210073591357*^9, 
+   3.897210309673448*^9, 3.897210489905843*^9, 3.897210756663189*^9, 
+   3.8972109419576893`*^9, 3.897211015691349*^9, {3.89721114962624*^9, 
+   3.8972111642449617`*^9}, 3.8972115212999153`*^9, {3.897332725248477*^9, 
+   3.897332745890503*^9}, {3.897332832321169*^9, 3.897332855098249*^9}, {
+   3.897332904635116*^9, 3.897332920092024*^9}, 3.897333017778759*^9, 
+   3.897333094405806*^9, 3.8973332522774353`*^9, {3.897333283978812*^9, 
+   3.897333380208632*^9}, {3.897333426088297*^9, 3.897333439146796*^9}, {
+   3.897333486117041*^9, 3.897333494767291*^9}, {3.897333627177766*^9, 
+   3.897333684063662*^9}, {3.897333772626923*^9, 3.897333808771022*^9}, 
+   3.897334000672022*^9, 3.897334034029291*^9, {3.897334079407134*^9, 
+   3.8973340874807158`*^9}, {3.8973355061343193`*^9, 
+   3.8973355602084093`*^9}, {3.8973369499183407`*^9, 3.897337005342751*^9}, {
+   3.8973370562151337`*^9, 3.897337074433552*^9}, 3.897337126330323*^9, {
+   3.8974060360040903`*^9, 3.8974060529085608`*^9}, 3.897407014262052*^9, 
+   3.897407160815446*^9, 3.897407276269948*^9, 3.897407429708642*^9, {
+   3.897407606154272*^9, 3.897407616473637*^9}, {3.8974203084718323`*^9, 
+   3.897420332196043*^9}, {3.8974705997222137`*^9, 3.8974706143352423`*^9}, 
+   3.897470652024021*^9, 3.897483791610506*^9},
+ CellLabel->
+  "Out[371]=",ExpressionUUID->"e27064f5-a4c6-4c25-8e82-ec2a47c711ed"],
+
+Cell["\<\
+With powerDelegate = 0.1 the delegate voting is close to democratic (1w1v). \
+The delegate line has a steeper slope and they are more closely spaced.  The \
+deposit lines are not visible in this plot but will have a close to vertical \
+downward slope.\
+\>", "Text",
+ CellChangeTimes->{{3.897470900504345*^9, 
+  3.8974710371434517`*^9}},ExpressionUUID->"938f531f-5107-4f0b-ac80-\
+daae846b804f"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`powerDelegate$$ = 0.10000000000000042`, 
+    Typeset`show$$ = True, Typeset`bookmarkList$$ = {}, 
+    Typeset`bookmarkMode$$ = "Menu", Typeset`animator$$, Typeset`animvar$$ = 
+    1, Typeset`name$$ = "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}}, 
+    Typeset`size$$ = {259.2, {77., 81.00470228252215}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, "Variables" :> {$CellContext`powerDelegate$$ = 0.5}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> LogLogPlot[
+        Evaluate[{
+          Map[Tooltip[
+            $CellContext`DelegateWeight[#, 
+             10, $CellContext`wallets, $CellContext`powerDelegate$$], #]& , {
+           10^4, 10^5, 10^6, 10^7, 10^8, 10^9, 10^10}], 
+          Map[Tooltip[
+            $CellContext`DepositWeight[#, 
+             500, $CellContext`wallets, $CellContext`powerDelegate$$, 
+             1], #]& , {10^3, 10^4, 10^5, 10^6}]}], {$CellContext`wallets, 1, 
+         100000}, AxesLabel -> {"Wallets", "Weight"}, 
+        PlotRange -> {{5/10, 10^5}, {5/10, 10^8}}, PlotStyle -> Flatten[{
+           Table[Line, 7], 
+           Table[Dashed, 5]}]], 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 0.99}},
+       "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{295., {119.93650390625, 124.06349609375}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.8969066207354717`*^9, 3.89690670910655*^9, {3.896906795074527*^9, 
+   3.8969068042310877`*^9}, {3.896906853392774*^9, 3.896906870072998*^9}, 
+   3.896906909309223*^9, 3.896907027939457*^9, {3.896907191194643*^9, 
+   3.896907214888914*^9}, 3.896907338781611*^9, 3.896907375711474*^9, 
+   3.896907462837926*^9, 3.896907650257337*^9, {3.896907712528635*^9, 
+   3.896907733537249*^9}, 3.896907803901462*^9, 3.896907848557067*^9, 
+   3.896907886362801*^9, {3.896907937838101*^9, 3.896907953075425*^9}, {
+   3.896908065422864*^9, 3.8969080906540337`*^9}, 3.8970195896631203`*^9, {
+   3.897019710328127*^9, 3.897019745801157*^9}, 3.897019825055361*^9, {
+   3.8970199258013*^9, 3.8970199438755293`*^9}, 3.897019990222981*^9, 
+   3.8970200584780617`*^9, {3.897020101654016*^9, 3.897020139115924*^9}, 
+   3.8970201692934103`*^9, {3.897020337574463*^9, 3.897020383596909*^9}, {
+   3.897020593507804*^9, 3.897020608007712*^9}, {3.897020670808922*^9, 
+   3.897020741464158*^9}, 3.897020920622388*^9, {3.8970211426298428`*^9, 
+   3.8970211505409184`*^9}, 3.897021193392878*^9, 3.8970213356066008`*^9, 
+   3.8970214387701893`*^9, 3.897021469860557*^9, 3.8970217447776003`*^9, 
+   3.897078161788438*^9, 3.897078243058052*^9, 3.8970789835019913`*^9, {
+   3.897208605783596*^9, 3.897208617951663*^9}, 3.897208734053046*^9, 
+   3.897208951993196*^9, 3.8972090013887453`*^9, 3.897209374190609*^9, 
+   3.89720969967054*^9, 3.897210027227859*^9, 3.897210073591357*^9, 
+   3.897210309673448*^9, 3.897210489905843*^9, 3.897210756663189*^9, 
+   3.8972109419576893`*^9, 3.897211015691349*^9, {3.89721114962624*^9, 
+   3.8972111642449617`*^9}, 3.8972115212999153`*^9, {3.897332725248477*^9, 
+   3.897332745890503*^9}, {3.897332832321169*^9, 3.897332855098249*^9}, {
+   3.897332904635116*^9, 3.897332920092024*^9}, 3.897333017778759*^9, 
+   3.897333094405806*^9, 3.8973332522774353`*^9, {3.897333283978812*^9, 
+   3.897333380208632*^9}, {3.897333426088297*^9, 3.897333439146796*^9}, {
+   3.897333486117041*^9, 3.897333494767291*^9}, {3.897333627177766*^9, 
+   3.897333684063662*^9}, {3.897333772626923*^9, 3.897333808771022*^9}, 
+   3.897334000672022*^9, 3.897334034029291*^9, {3.897334079407134*^9, 
+   3.8973340874807158`*^9}, {3.8973355061343193`*^9, 
+   3.8973355602084093`*^9}, {3.8973369499183407`*^9, 3.897337005342751*^9}, {
+   3.8973370562151337`*^9, 3.897337074433552*^9}, 3.897337126330323*^9, {
+   3.8974060360040903`*^9, 3.8974060529085608`*^9}, 3.897407014262052*^9, 
+   3.897407160815446*^9, 3.897407276269948*^9, 3.897407429708642*^9, {
+   3.897407606154272*^9, 3.897407616473637*^9}, {3.8974203084718323`*^9, 
+   3.897420332196043*^9}, {3.8974705997222137`*^9, 3.8974706143352423`*^9}, 
+   3.897470652024021*^9, 3.8974837961382513`*^9},
+ CellLabel->
+  "Out[371]=",ExpressionUUID->"b58cbeda-c07f-4356-bd52-42ace5d7d6b8"],
+
+Cell["", "Text",
+ CellChangeTimes->{{3.89747111075886*^9, 3.897471176020781*^9}, {
+   3.8974820948191223`*^9, 3.897482200519148*^9}, 
+   3.897484275462288*^9},ExpressionUUID->"f9ae8a56-2fb8-48b7-9671-\
+7408af0067d8"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"51190c05-f61f-4865-8421-a26ca4a91ae5"],
+
+Cell["\<\
+A powerDelegate = 0.99 is similar to 1c1v. In this design, the both the \
+delegate deposit weight are plutocratic. Thus, the deposit is required to \
+match the delegate. While this example isn't practical, the powerDeposit \
+parameter could be used to modify the properties.\
+\>", "Text",
+ CellChangeTimes->{{3.89747111075886*^9, 3.897471176020781*^9}, {
+  3.8974820948191223`*^9, 
+  3.897482200519148*^9}},ExpressionUUID->"33f5158b-a69d-4a8f-9a5c-\
+f982eb352516"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`powerDelegate$$ = 0.99, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}}, 
+    Typeset`size$$ = {259.2, {78., 80.24666322002216}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, "Variables" :> {$CellContext`powerDelegate$$ = 0.5}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> LogLogPlot[
+        Evaluate[{
+          Map[Tooltip[
+            $CellContext`DelegateWeight[#, 
+             10, $CellContext`wallets, $CellContext`powerDelegate$$], #]& , {
+           10^4, 10^5, 10^6, 10^7, 10^8, 10^9, 10^10}], 
+          Map[Tooltip[
+            $CellContext`DepositWeight[#, 
+             500, $CellContext`wallets, $CellContext`powerDelegate$$, 
+             1], #]& , {10^3, 10^4, 10^5, 10^6}]}], {$CellContext`wallets, 1, 
+         100000}, AxesLabel -> {"Wallets", "Weight"}, 
+        PlotRange -> {{5/10, 10^5}, {5/10, 10^8}}, PlotStyle -> Flatten[{
+           Table[Line, 7], 
+           Table[Dashed, 5]}]], 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 0.99}},
+       "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{295., {119.93650390625, 124.06349609375}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.8969066207354717`*^9, 3.89690670910655*^9, {3.896906795074527*^9, 
+   3.8969068042310877`*^9}, {3.896906853392774*^9, 3.896906870072998*^9}, 
+   3.896906909309223*^9, 3.896907027939457*^9, {3.896907191194643*^9, 
+   3.896907214888914*^9}, 3.896907338781611*^9, 3.896907375711474*^9, 
+   3.896907462837926*^9, 3.896907650257337*^9, {3.896907712528635*^9, 
+   3.896907733537249*^9}, 3.896907803901462*^9, 3.896907848557067*^9, 
+   3.896907886362801*^9, {3.896907937838101*^9, 3.896907953075425*^9}, {
+   3.896908065422864*^9, 3.8969080906540337`*^9}, 3.8970195896631203`*^9, {
+   3.897019710328127*^9, 3.897019745801157*^9}, 3.897019825055361*^9, {
+   3.8970199258013*^9, 3.8970199438755293`*^9}, 3.897019990222981*^9, 
+   3.8970200584780617`*^9, {3.897020101654016*^9, 3.897020139115924*^9}, 
+   3.8970201692934103`*^9, {3.897020337574463*^9, 3.897020383596909*^9}, {
+   3.897020593507804*^9, 3.897020608007712*^9}, {3.897020670808922*^9, 
+   3.897020741464158*^9}, 3.897020920622388*^9, {3.8970211426298428`*^9, 
+   3.8970211505409184`*^9}, 3.897021193392878*^9, 3.8970213356066008`*^9, 
+   3.8970214387701893`*^9, 3.897021469860557*^9, 3.8970217447776003`*^9, 
+   3.897078161788438*^9, 3.897078243058052*^9, 3.8970789835019913`*^9, {
+   3.897208605783596*^9, 3.897208617951663*^9}, 3.897208734053046*^9, 
+   3.897208951993196*^9, 3.8972090013887453`*^9, 3.897209374190609*^9, 
+   3.89720969967054*^9, 3.897210027227859*^9, 3.897210073591357*^9, 
+   3.897210309673448*^9, 3.897210489905843*^9, 3.897210756663189*^9, 
+   3.8972109419576893`*^9, 3.897211015691349*^9, {3.89721114962624*^9, 
+   3.8972111642449617`*^9}, 3.8972115212999153`*^9, {3.897332725248477*^9, 
+   3.897332745890503*^9}, {3.897332832321169*^9, 3.897332855098249*^9}, {
+   3.897332904635116*^9, 3.897332920092024*^9}, 3.897333017778759*^9, 
+   3.897333094405806*^9, 3.8973332522774353`*^9, {3.897333283978812*^9, 
+   3.897333380208632*^9}, {3.897333426088297*^9, 3.897333439146796*^9}, {
+   3.897333486117041*^9, 3.897333494767291*^9}, {3.897333627177766*^9, 
+   3.897333684063662*^9}, {3.897333772626923*^9, 3.897333808771022*^9}, 
+   3.897334000672022*^9, 3.897334034029291*^9, {3.897334079407134*^9, 
+   3.8973340874807158`*^9}, {3.8973355061343193`*^9, 
+   3.8973355602084093`*^9}, {3.8973369499183407`*^9, 3.897337005342751*^9}, {
+   3.8973370562151337`*^9, 3.897337074433552*^9}, 3.897337126330323*^9, {
+   3.8974060360040903`*^9, 3.8974060529085608`*^9}, 3.897407014262052*^9, 
+   3.897407160815446*^9, 3.897407276269948*^9, 3.897407429708642*^9, {
+   3.897407606154272*^9, 3.897407616473637*^9}, {3.8974203084718323`*^9, 
+   3.897420332196043*^9}, {3.8974705997222137`*^9, 3.8974706143352423`*^9}, 
+   3.897470652024021*^9, 3.8974838020277243`*^9},
+ CellLabel->
+  "Out[371]=",ExpressionUUID->"a83576d3-c5a4-417b-965f-e86f9a975756"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"d12c885e-5354-40ca-b49d-98c7e7e7955c"],
+
+Cell[TextData[{
+ "In this example, minDeposit = 10, removing the 10/minDeposit factor.  Shown \
+are deposits of ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"{", 
+    SuperscriptBox["10", "2"]}], TraditionalForm]],ExpressionUUID->
+  "87b8ce66-7261-42a5-9e3f-a925ce2fea1f"],
+ ", ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "3"], TraditionalForm]],ExpressionUUID->
+  "3080c2e1-4e9a-407e-b2d7-1218128f265d"],
+ Cell[BoxData[
+  FormBox[
+   RowBox[{",", 
+    SuperscriptBox["10", "4"], ",", " "}], TraditionalForm]],ExpressionUUID->
+  "aae68894-b258-478b-9553-22598e1b03ac"],
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SuperscriptBox["10", "5"], "}"}], TraditionalForm]],ExpressionUUID->
+  "a6600632-0d5d-43fa-8475-8600ccd8de2f"],
+ ".  In this case a modest deposit of 10,000 can be allocated over 10 wallets \
+to increase the votes with a delegate of 1 million.  Large delegate size have \
+less of a benefit; nevertheless the 10/minDeposit factor with minDeposit = \
+500 reduces this effect, which is why it was added to the design. \n\nThe \
+delegate lines (solid) shown are range from ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "3"], TraditionalForm]],ExpressionUUID->
+  "95cd1a9a-a308-4b4c-835e-899cfb274a6c"],
+ "to ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "10"], TraditionalForm]],ExpressionUUID->
+  "4d3c3b04-8d31-438d-803b-58c1b4fb29f2"],
+ " by powers of 10. The deposit lines (dashed) range from ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "3"], TraditionalForm]],ExpressionUUID->
+  "ebc624ac-87ff-472e-8231-96ac14562c79"],
+ " to ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "6"], TraditionalForm]],ExpressionUUID->
+  "9a0cfd5b-3828-499c-806b-80f513c8e025"],
+ " by powers of 10."
+}], "Text",
+ CellChangeTimes->{{3.8974712413388453`*^9, 3.897471316855131*^9}, {
+  3.897472058175968*^9, 3.8974722522235537`*^9}, {3.897472464202484*^9, 
+  3.897472478905031*^9}, {3.897482248458576*^9, 3.897482266087077*^9}, {
+  3.8974845603502903`*^9, 3.897484561238554*^9}, {3.897484810635892*^9, 
+  3.897484811350288*^9}},ExpressionUUID->"cc52cca8-eff2-440a-a15b-\
+a50fbc378b18"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`powerDelegate$$ = 0.5, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}}, 
+    Typeset`size$$ = {259.2, {78., 80.24666322002216}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, "Variables" :> {$CellContext`powerDelegate$$ = 0.5}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> LogLogPlot[
+        Evaluate[{
+          Map[Tooltip[
+            $CellContext`DelegateWeight[#, 
+             10, $CellContext`wallets, $CellContext`powerDelegate$$], #]& , {
+           10^4, 10^5, 10^6, 10^7, 10^8, 10^9, 10^10}], 
+          Map[Tooltip[
+            $CellContext`DepositWeight[#, 
+             500, $CellContext`wallets, $CellContext`powerDelegate$$, 
+             1], #]& , {10^3, 10^4, 10^5, 10^6}]}], {$CellContext`wallets, 1, 
+         100000}, AxesLabel -> {"Wallets", "Weight"}, 
+        PlotRange -> {{5/10, 10^5}, {5/10, 10^8}}, PlotStyle -> Flatten[{
+           Table[Line, 7], 
+           Table[Dashed, 5]}]], 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 0.99}},
+       "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{295., {119.93650390625, 124.06349609375}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.8969066207354717`*^9, 3.89690670910655*^9, {3.896906795074527*^9, 
+   3.8969068042310877`*^9}, {3.896906853392774*^9, 3.896906870072998*^9}, 
+   3.896906909309223*^9, 3.896907027939457*^9, {3.896907191194643*^9, 
+   3.896907214888914*^9}, 3.896907338781611*^9, 3.896907375711474*^9, 
+   3.896907462837926*^9, 3.896907650257337*^9, {3.896907712528635*^9, 
+   3.896907733537249*^9}, 3.896907803901462*^9, 3.896907848557067*^9, 
+   3.896907886362801*^9, {3.896907937838101*^9, 3.896907953075425*^9}, {
+   3.896908065422864*^9, 3.8969080906540337`*^9}, 3.8970195896631203`*^9, {
+   3.897019710328127*^9, 3.897019745801157*^9}, 3.897019825055361*^9, {
+   3.8970199258013*^9, 3.8970199438755293`*^9}, 3.897019990222981*^9, 
+   3.8970200584780617`*^9, {3.897020101654016*^9, 3.897020139115924*^9}, 
+   3.8970201692934103`*^9, {3.897020337574463*^9, 3.897020383596909*^9}, {
+   3.897020593507804*^9, 3.897020608007712*^9}, {3.897020670808922*^9, 
+   3.897020741464158*^9}, 3.897020920622388*^9, {3.8970211426298428`*^9, 
+   3.8970211505409184`*^9}, 3.897021193392878*^9, 3.8970213356066008`*^9, 
+   3.8970214387701893`*^9, 3.897021469860557*^9, 3.8970217447776003`*^9, 
+   3.897078161788438*^9, 3.897078243058052*^9, 3.8970789835019913`*^9, {
+   3.897208605783596*^9, 3.897208617951663*^9}, 3.897208734053046*^9, 
+   3.897208951993196*^9, 3.8972090013887453`*^9, 3.897209374190609*^9, 
+   3.89720969967054*^9, 3.897210027227859*^9, 3.897210073591357*^9, 
+   3.897210309673448*^9, 3.897210489905843*^9, 3.897210756663189*^9, 
+   3.8972109419576893`*^9, 3.897211015691349*^9, {3.89721114962624*^9, 
+   3.8972111642449617`*^9}, 3.8972115212999153`*^9, {3.897332725248477*^9, 
+   3.897332745890503*^9}, {3.897332832321169*^9, 3.897332855098249*^9}, {
+   3.897332904635116*^9, 3.897332920092024*^9}, 3.897333017778759*^9, 
+   3.897333094405806*^9, 3.8973332522774353`*^9, {3.897333283978812*^9, 
+   3.897333380208632*^9}, {3.897333426088297*^9, 3.897333439146796*^9}, {
+   3.897333486117041*^9, 3.897333494767291*^9}, {3.897333627177766*^9, 
+   3.897333684063662*^9}, {3.897333772626923*^9, 3.897333808771022*^9}, 
+   3.897334000672022*^9, 3.897334034029291*^9, {3.897334079407134*^9, 
+   3.8973340874807158`*^9}, {3.8973355061343193`*^9, 
+   3.8973355602084093`*^9}, {3.8973369499183407`*^9, 3.897337005342751*^9}, {
+   3.8973370562151337`*^9, 3.897337074433552*^9}, 3.897337126330323*^9, {
+   3.8974060360040903`*^9, 3.8974060529085608`*^9}, 3.897407014262052*^9, 
+   3.897407160815446*^9, 3.897407276269948*^9, 3.897407429708642*^9, {
+   3.897407606154272*^9, 3.897407616473637*^9}, {3.8974203084718323`*^9, 
+   3.897420332196043*^9}, {3.8974705997222137`*^9, 3.8974706143352423`*^9}, 
+   3.897470652024021*^9, 3.897483806393309*^9},
+ CellLabel->
+  "Out[371]=",ExpressionUUID->"cce1c745-926f-4214-ac67-da9c0bf8c773"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"4a67a976-adbe-48b9-a3f6-a514feeff3c5"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Analysis of DRep Votes using multiple wallets", "Section",
+ CellChangeTimes->{{3.897454758678382*^9, 
+  3.8974548108350697`*^9}},ExpressionUUID->"f3e48be8-7710-47ed-8b84-\
+0efce6308c16"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"minDelegateforPlot", "=", "10"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"minDepositforPlot", "=", "500"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Manipulate", "[", 
+  RowBox[{
+   RowBox[{"LogLogPlot", "[", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Labeled", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"Votes", "[", 
+          RowBox[{
+          "delegate", ",", "deposit", ",", "minDelegateforPlot", ",", 
+           "minDepositforPlot", ",", "wallets", ",", "powerDelegate", ",", 
+           "1"}], "]"}], ",", "\[IndentingNewLine]", 
+         RowBox[{"Text", "[", 
+          RowBox[{"Style", "[", 
+           RowBox[{"\"\<Votes\>\"", ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"ColorData", "[", 
+               RowBox[{"97", ",", "1"}], "]"}], ",", "Bold"}], "}"}]}], "]"}],
+           "]"}]}], "]"}], ",", "\[IndentingNewLine]", 
+       RowBox[{"Labeled", "[", 
+        RowBox[{"delegate", ",", "\"\<delegate\>\""}], "]"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"Labeled", "[", 
+        RowBox[{"deposit", ",", "\"\<deposit\>\""}], "]"}]}], "}"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{"wallets", ",", "1", ",", "50000"}], "}"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"AxesLabel", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"\"\<Wallets\>\"", ",", "\"\<Votes\>\""}], "}"}]}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{"PlotLegends", "\[Rule]", 
+        RowBox[{"SwatchLegend", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            SuperscriptBox["10", "1"], ",", 
+            SuperscriptBox["10", "2"], ",", 
+            SuperscriptBox["10", "3"], ",", 
+            SuperscriptBox["10", "4"], ",", 
+            SuperscriptBox["10", "5"]}], "}"}], ",", 
+          RowBox[{"LegendLabel", "\[Rule]", "\"\<Deposited\>\""}]}], "]"}]}], 
+       ","}], "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"PlotRange", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"5", " ", 
+           SuperscriptBox["10", 
+            RowBox[{"-", "1"}]]}], ",", 
+          SuperscriptBox["10", "5"]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{
+          SuperscriptBox["10", 
+           RowBox[{"-", "1"}]], ",", 
+          SuperscriptBox["10", "10"]}], "}"}]}], "}"}]}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"PlotStyle", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"Line", ",", "Dashed", ",", "Dotted"}], "}"}]}]}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"powerDelegate", ",", "0.5"}], "}"}], ",", "0.01", ",", ".99"}],
+     "}"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"delegate", ",", 
+       SuperscriptBox["10", "7"]}], "}"}], ",", 
+     SuperscriptBox["10", "4"], ",", 
+     SuperscriptBox["10", "9"]}], "}"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"deposit", ",", 
+       RowBox[{"5", " ", 
+        SuperscriptBox["10", "3"]}]}], "}"}], ",", "minDepositforPlot", ",", 
+     SuperscriptBox["10", "6"]}], "}"}]}], "]"}]}], "Input",
+ CellChangeTimes->{
+  3.896905520916265*^9, {3.8969062704434223`*^9, 3.8969063191836147`*^9}, {
+   3.896906372969219*^9, 3.896906558703273*^9}, {3.896906598403187*^9, 
+   3.8969066153928967`*^9}, {3.896906706993428*^9, 3.8969067077217827`*^9}, {
+   3.8969067874692593`*^9, 3.896906802981048*^9}, {3.896906868571308*^9, 
+   3.896906868633005*^9}, {3.896906905312064*^9, 3.896906908025069*^9}, {
+   3.896907013112605*^9, 3.8969070270276957`*^9}, {3.8969070624975452`*^9, 
+   3.8969071051112013`*^9}, {3.896907188318598*^9, 3.896907207715478*^9}, {
+   3.896907333943162*^9, 3.896907337383709*^9}, {3.896907373267892*^9, 
+   3.896907374315783*^9}, {3.896907647444927*^9, 3.8969076486363697`*^9}, {
+   3.8969077027762537`*^9, 3.8969077323792067`*^9}, {3.896907780209866*^9, 
+   3.8969078029524593`*^9}, {3.8969079275682497`*^9, 3.896907948311104*^9}, {
+   3.896908064117238*^9, 3.896908088832041*^9}, {3.897019580798115*^9, 
+   3.8970195814849453`*^9}, {3.897019709141786*^9, 3.897019744162919*^9}, {
+   3.897019821713418*^9, 3.897019848699358*^9}, {3.897019922281798*^9, 
+   3.8970199422554903`*^9}, {3.8970199837449903`*^9, 3.8970199887706223`*^9}, 
+   3.897020052501143*^9, {3.8970200979217863`*^9, 3.897020137459412*^9}, 
+   3.8970201678551188`*^9, {3.897020318868534*^9, 3.897020382666657*^9}, {
+   3.897020590939911*^9, 3.8970206069900417`*^9}, {3.8970206693420973`*^9, 
+   3.897020740118843*^9}, 3.8970209193026457`*^9, {3.8970211399108477`*^9, 
+   3.897021148805134*^9}, {3.897021191839469*^9, 3.897021192161847*^9}, {
+   3.897021332771801*^9, 3.8970213331563063`*^9}, {3.89702143411609*^9, 
+   3.897021436873028*^9}, {3.8970214677720013`*^9, 3.897021467903038*^9}, 
+   3.8970217424855223`*^9, 3.897073126157967*^9, {3.897073156775896*^9, 
+   3.897073156896908*^9}, {3.897073188710106*^9, 3.8970732471085377`*^9}, {
+   3.897075194512038*^9, 3.897075295215417*^9}, {3.89707533905097*^9, 
+   3.897075339368022*^9}, {3.897075378157394*^9, 3.89707539360387*^9}, {
+   3.8970754594291897`*^9, 3.897075475823295*^9}, {3.897075550175558*^9, 
+   3.8970755512512503`*^9}, {3.8970758981213417`*^9, 3.897075906957973*^9}, {
+   3.897075974622499*^9, 3.89707599129683*^9}, {3.8970760470036182`*^9, 
+   3.897076087383752*^9}, {3.897076362702688*^9, 3.897076422171937*^9}, {
+   3.8970765195408373`*^9, 3.897076539226955*^9}, {3.897076594480362*^9, 
+   3.897076658111754*^9}, {3.8970768043708487`*^9, 3.8970768700605307`*^9}, 
+   3.89707695042101*^9, {3.897077611282436*^9, 3.89707761830298*^9}, {
+   3.897077652899967*^9, 3.897077780890128*^9}, 3.8970785585266237`*^9, {
+   3.8970801217490892`*^9, 3.897080122412959*^9}, {3.897080684993021*^9, 
+   3.897080686510548*^9}, {3.897080850049074*^9, 3.8970810119683523`*^9}, 
+   3.89708144729667*^9, {3.89708161615106*^9, 3.897081617610466*^9}, {
+   3.897081661977108*^9, 3.8970816633387012`*^9}, {3.897081699151979*^9, 
+   3.8970816992220497`*^9}, {3.897081733751122*^9, 3.897081734201997*^9}, {
+   3.897081986548071*^9, 3.897081989541461*^9}, 3.8970820759668617`*^9, {
+   3.8970821611743*^9, 3.89708216260319*^9}, {3.8970822268216133`*^9, 
+   3.89708222879827*^9}, 3.897082444196368*^9, {3.897109110106936*^9, 
+   3.8971091545586853`*^9}, {3.8971092262745047`*^9, 3.897109364704484*^9}, {
+   3.897109499887726*^9, 3.8971095338427353`*^9}, {3.897109682899282*^9, 
+   3.897109685764184*^9}, 3.897109900486471*^9, 3.897110001335414*^9, {
+   3.8971100468112993`*^9, 3.897110054572928*^9}, {3.897110260934725*^9, 
+   3.8971102863672857`*^9}, {3.8971103998446207`*^9, 3.897110430172634*^9}, {
+   3.897110463882614*^9, 3.897110463935918*^9}, 3.8971105558135843`*^9, {
+   3.8971106335362797`*^9, 3.8971106399264402`*^9}, {3.89711078505599*^9, 
+   3.897110786986211*^9}, {3.897110827231462*^9, 3.897110853657907*^9}, {
+   3.897110890339644*^9, 3.89711094673426*^9}, {3.897110994512602*^9, 
+   3.897110994591227*^9}, {3.897208384415509*^9, 3.897208384575839*^9}, {
+   3.897209083045381*^9, 3.897209083204463*^9}, {3.897209498402965*^9, 
+   3.8972095368286467`*^9}, {3.897210891084565*^9, 3.897210905734447*^9}, 
+   3.897211296253993*^9, 3.897211608529111*^9, {3.8972152409702578`*^9, 
+   3.897215246052733*^9}, {3.8972153367412453`*^9, 3.897215340573422*^9}, {
+   3.897334331828136*^9, 3.897334348131502*^9}, {3.897336616259593*^9, 
+   3.897336625808572*^9}, {3.8973368225887823`*^9, 3.897336822726098*^9}, 
+   3.897406167282943*^9, 3.897406302467197*^9, {3.897406372507722*^9, 
+   3.8974063728505297`*^9}, {3.8974067865132723`*^9, 3.897406786584247*^9}, {
+   3.897407949684957*^9, 3.897407959847731*^9}, {3.897408017304851*^9, 
+   3.897408021829752*^9}, {3.8974088696957817`*^9, 3.897408871377529*^9}, {
+   3.8974212350723352`*^9, 3.89742123611968*^9}, {3.897471465743001*^9, 
+   3.89747146901035*^9}, {3.897472741584188*^9, 3.897472742302153*^9}},
+ CellLabel->"In[5]:=",ExpressionUUID->"7a32ef50-ceec-4c55-86ac-05db0cdb19da"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`delegate$$ = 
+    999999.9999996973, $CellContext`deposit$$ = 
+    9999.999999999658, $CellContext`powerDelegate$$ = 0.5, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}, {{
+       Hold[$CellContext`delegate$$], 10000000}, 10000, 1000000000}, {{
+       Hold[$CellContext`deposit$$], 5000}, 500, 1000000}}, Typeset`size$$ = {
+    259.2, {70., 74.11936169129919}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, 
+      "Variables" :> {$CellContext`delegate$$ = 
+        10000000, $CellContext`deposit$$ = 5000, $CellContext`powerDelegate$$ = 
+        0.5}, "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> LogLogPlot[{
+         Labeled[
+          $CellContext`Votes[$CellContext`delegate$$, $CellContext`deposit$$, \
+$CellContext`minDelegateforPlot, $CellContext`minDepositforPlot, \
+$CellContext`wallets, $CellContext`powerDelegate$$, 1], 
+          Text[
+           Style["Votes", {
+             ColorData[97, 1], Bold}]]], 
+         Labeled[$CellContext`delegate$$, "delegate"], 
+         Labeled[$CellContext`deposit$$, "deposit"]}, {$CellContext`wallets, 
+         1, 50000}, AxesLabel -> {"Wallets", "Votes"}, 
+        PlotRange -> {{5/10, 10^5}, {10^(-1), 10^10}}, 
+        PlotStyle -> {Line, Dashed, Dotted}], 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 
+         0.99}, {{$CellContext`delegate$$, 10000000}, 10000, 
+         1000000000}, {{$CellContext`deposit$$, 5000}, 500, 1000000}}, 
+      "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{295., {147.93650390625, 152.06349609375}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.897213561697839*^9, {3.897213618366796*^9, 3.897213622992477*^9}, {
+   3.897215250370472*^9, 3.897215267056458*^9}, {3.897215341977395*^9, 
+   3.897215351148457*^9}, {3.897334350065557*^9, 3.8973343629390593`*^9}, {
+   3.89733662775278*^9, 3.897336645620397*^9}, {3.897336825539909*^9, 
+   3.897336843887844*^9}, {3.8974061691590137`*^9, 3.897406186544491*^9}, {
+   3.8974063051231327`*^9, 3.897406316902808*^9}, {3.897406374154501*^9, 
+   3.8974063793655767`*^9}, {3.897406778276844*^9, 3.897406814713192*^9}, {
+   3.897407953383634*^9, 3.897407972618639*^9}, 3.897408023532889*^9, 
+   3.897408874743476*^9, 3.897421237641283*^9, {3.89747149241634*^9, 
+   3.897471498735655*^9}, {3.89747274788404*^9, 3.897472763128212*^9}, {
+   3.8974838223561087`*^9, 3.897483828423256*^9}},
+ CellLabel->"Out[7]=",ExpressionUUID->"8a4e48a3-bfe1-46d0-8171-b0bbe4112c93"]
+}, Open  ]],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"12357601-34c8-4d29-8c7a-694880be5d9e"],
+
+Cell[TextData[{
+ "A DRep that can attract a modestly large delegation ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{
+     SuperscriptBox["10", "6"], " ", "ADA"}], ")"}], TraditionalForm]],
+  ExpressionUUID->"c561a909-ca3a-4a33-9984-cea50356fa61"],
+ " and uses the minimum required deposit to support this delegation ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{"1581", " ", "ADA"}]}], TraditionalForm]],ExpressionUUID->
+  "16352e4d-3a3b-43ca-9e68-cf8049455667"],
+ ") has 1000 votes with one wallet. Their votes decrease to 500 if they split \
+the deposit and delegation into two wallets. Beyond three wallets the deposit \
+does not meet the minimum and the votes go to zero."
+}], "Text",
+ CellChangeTimes->{{3.897472795997259*^9, 3.897472820872919*^9}, {
+  3.897472863803054*^9, 3.897472914896373*^9}, {3.897473107976465*^9, 
+  3.897473150128819*^9}, {3.897473201718781*^9, 3.897473221328681*^9}, {
+  3.8974822968143177`*^9, 3.897482297151059*^9}, {3.897482625966902*^9, 
+  3.897482653535034*^9}},ExpressionUUID->"77ba72e8-c8e4-4d5e-836d-\
+5d146a6f8db0"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`delegate$$ = 
+    999999.9999996973, $CellContext`deposit$$ = 
+    1581.0000000007208`, $CellContext`powerDelegate$$ = 0.5, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}, {{
+       Hold[$CellContext`delegate$$], 10000000}, 10000, 1000000000}, {{
+       Hold[$CellContext`deposit$$], 5000}, 500, 1000000}}, Typeset`size$$ = {
+    259.2, {70., 74.11936169129919}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, 
+      "Variables" :> {$CellContext`delegate$$ = 
+        10000000, $CellContext`deposit$$ = 5000, $CellContext`powerDelegate$$ = 
+        0.5}, "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> LogLogPlot[{
+         Labeled[
+          $CellContext`Votes[$CellContext`delegate$$, $CellContext`deposit$$, \
+$CellContext`minDelegateforPlot, $CellContext`minDepositforPlot, \
+$CellContext`wallets, $CellContext`powerDelegate$$, 1], 
+          Text[
+           Style["Votes", {
+             ColorData[97, 1], Bold}]]], 
+         Labeled[$CellContext`delegate$$, "delegate"], 
+         Labeled[$CellContext`deposit$$, "deposit"]}, {$CellContext`wallets, 
+         1, 50000}, AxesLabel -> {"Wallets", "Votes"}, 
+        PlotRange -> {{5/10, 10^5}, {10^(-1), 10^10}}, 
+        PlotStyle -> {Line, Dashed, Dotted}], 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 
+         0.99}, {{$CellContext`delegate$$, 10000000}, 10000, 
+         1000000000}, {{$CellContext`deposit$$, 5000}, 500, 1000000}}, 
+      "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{295., {147.93650390625, 152.06349609375}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.897213561697839*^9, {3.897213618366796*^9, 3.897213622992477*^9}, {
+   3.897215250370472*^9, 3.897215267056458*^9}, {3.897215341977395*^9, 
+   3.897215351148457*^9}, {3.897334350065557*^9, 3.8973343629390593`*^9}, {
+   3.89733662775278*^9, 3.897336645620397*^9}, {3.897336825539909*^9, 
+   3.897336843887844*^9}, {3.8974061691590137`*^9, 3.897406186544491*^9}, {
+   3.8974063051231327`*^9, 3.897406316902808*^9}, {3.897406374154501*^9, 
+   3.8974063793655767`*^9}, {3.897406778276844*^9, 3.897406814713192*^9}, {
+   3.897407953383634*^9, 3.897407972618639*^9}, 3.897408023532889*^9, 
+   3.897408874743476*^9, 3.897421237641283*^9, {3.89747149241634*^9, 
+   3.897471498735655*^9}, {3.89747274788404*^9, 3.897472763128212*^9}, {
+   3.8974838325411673`*^9, 3.897483837444211*^9}},
+ CellLabel->"Out[7]=",ExpressionUUID->"2f12b17d-247b-4aef-b13d-44842a3bd602"],
+
+Cell["", "Text",
+ CellChangeTimes->{{3.897473255855784*^9, 3.897473351445436*^9}, 
+   3.897484658569934*^9},ExpressionUUID->"2da0988d-2b78-4727-bb14-\
+21287e327609"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"1341db52-de8f-4426-8a1e-d867a8e712c6"],
+
+Cell["\<\
+Even with an investment of 10,000 for the deposits, the maximum votes is \
+limited to 10 wallets.  In this case the delegates/wallet has dropped to \
+100,000 ADA which creates the risk that they will deselected as a DRep \
+because they are not in the top 10,000 DReps by delegation.\
+\>", "Text",
+ CellChangeTimes->{{3.897473255855784*^9, 
+  3.897473351445436*^9}},ExpressionUUID->"4d94f4bd-bb9a-40aa-ac8e-\
+96966c122ab1"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`delegate$$ = 
+    999999.9999996973, $CellContext`deposit$$ = 
+    9999.999999999658, $CellContext`powerDelegate$$ = 0.5, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}, {{
+       Hold[$CellContext`delegate$$], 10000000}, 10000, 1000000000}, {{
+       Hold[$CellContext`deposit$$], 5000}, 500, 1000000}}, Typeset`size$$ = {
+    259.2, {70., 74.11936169129919}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, 
+      "Variables" :> {$CellContext`delegate$$ = 
+        10000000, $CellContext`deposit$$ = 5000, $CellContext`powerDelegate$$ = 
+        0.5}, "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> LogLogPlot[{
+         Labeled[
+          $CellContext`Votes[$CellContext`delegate$$, $CellContext`deposit$$, \
+$CellContext`minDelegateforPlot, $CellContext`minDepositforPlot, \
+$CellContext`wallets, $CellContext`powerDelegate$$, 1], 
+          Text[
+           Style["Votes", {
+             ColorData[97, 1], Bold}]]], 
+         Labeled[$CellContext`delegate$$, "delegate"], 
+         Labeled[$CellContext`deposit$$, "deposit"]}, {$CellContext`wallets, 
+         1, 50000}, AxesLabel -> {"Wallets", "Votes"}, 
+        PlotRange -> {{5/10, 10^5}, {10^(-1), 10^10}}, 
+        PlotStyle -> {Line, Dashed, Dotted}], 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 
+         0.99}, {{$CellContext`delegate$$, 10000000}, 10000, 
+         1000000000}, {{$CellContext`deposit$$, 5000}, 500, 1000000}}, 
+      "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{295., {147.93650390625, 152.06349609375}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.897213561697839*^9, {3.897213618366796*^9, 3.897213622992477*^9}, {
+   3.897215250370472*^9, 3.897215267056458*^9}, {3.897215341977395*^9, 
+   3.897215351148457*^9}, {3.897334350065557*^9, 3.8973343629390593`*^9}, {
+   3.89733662775278*^9, 3.897336645620397*^9}, {3.897336825539909*^9, 
+   3.897336843887844*^9}, {3.8974061691590137`*^9, 3.897406186544491*^9}, {
+   3.8974063051231327`*^9, 3.897406316902808*^9}, {3.897406374154501*^9, 
+   3.8974063793655767`*^9}, {3.897406778276844*^9, 3.897406814713192*^9}, {
+   3.897407953383634*^9, 3.897407972618639*^9}, 3.897408023532889*^9, 
+   3.897408874743476*^9, 3.897421237641283*^9, {3.89747149241634*^9, 
+   3.897471498735655*^9}, {3.89747274788404*^9, 3.897472763128212*^9}, {
+   3.897483843374054*^9, 3.8974838467782307`*^9}},
+ CellLabel->"Out[7]=",ExpressionUUID->"10c2c26d-3c64-4556-b8f4-d45ecf333b44"],
+
+Cell["", "Text",
+ CellChangeTimes->{{3.897473415135062*^9, 3.897473467920919*^9}, 
+   3.897484312296493*^9},ExpressionUUID->"cf180627-e2ef-4239-8eb6-\
+5170ada38924"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"84d1888d-9d32-4a53-b407-a64aafbf581e"],
+
+Cell["\<\
+Furthermore, if this DRep investing 10,000 ADA in deposits could increase \
+their delegate to 10 million ADA, they would have to reduce the number of \
+wallets used to improve their votes.\
+\>", "Text",
+ CellChangeTimes->{{3.897473415135062*^9, 
+  3.897473467920919*^9}},ExpressionUUID->"4d8e09c2-4da9-48b0-a614-\
+045ec3bde2c7"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`delegate$$ = 
+    1.000000000000134*^7, $CellContext`deposit$$ = 
+    9999.999999999658, $CellContext`powerDelegate$$ = 0.5, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}, {{
+       Hold[$CellContext`delegate$$], 10000000}, 10000, 1000000000}, {{
+       Hold[$CellContext`deposit$$], 5000}, 500, 1000000}}, Typeset`size$$ = {
+    259.2, {70., 74.11936169129919}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, 
+      "Variables" :> {$CellContext`delegate$$ = 
+        10000000, $CellContext`deposit$$ = 5000, $CellContext`powerDelegate$$ = 
+        0.5}, "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> LogLogPlot[{
+         Labeled[
+          $CellContext`Votes[$CellContext`delegate$$, $CellContext`deposit$$, \
+$CellContext`minDelegateforPlot, $CellContext`minDepositforPlot, \
+$CellContext`wallets, $CellContext`powerDelegate$$, 1], 
+          Text[
+           Style["Votes", {
+             ColorData[97, 1], Bold}]]], 
+         Labeled[$CellContext`delegate$$, "delegate"], 
+         Labeled[$CellContext`deposit$$, "deposit"]}, {$CellContext`wallets, 
+         1, 50000}, AxesLabel -> {"Wallets", "Votes"}, 
+        PlotRange -> {{5/10, 10^5}, {10^(-1), 10^10}}, 
+        PlotStyle -> {Line, Dashed, Dotted}], 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 
+         0.99}, {{$CellContext`delegate$$, 10000000}, 10000, 
+         1000000000}, {{$CellContext`deposit$$, 5000}, 500, 1000000}}, 
+      "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{295., {147.93650390625, 152.06349609375}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.897213561697839*^9, {3.897213618366796*^9, 3.897213622992477*^9}, {
+   3.897215250370472*^9, 3.897215267056458*^9}, {3.897215341977395*^9, 
+   3.897215351148457*^9}, {3.897334350065557*^9, 3.8973343629390593`*^9}, {
+   3.89733662775278*^9, 3.897336645620397*^9}, {3.897336825539909*^9, 
+   3.897336843887844*^9}, {3.8974061691590137`*^9, 3.897406186544491*^9}, {
+   3.8974063051231327`*^9, 3.897406316902808*^9}, {3.897406374154501*^9, 
+   3.8974063793655767`*^9}, {3.897406778276844*^9, 3.897406814713192*^9}, {
+   3.897407953383634*^9, 3.897407972618639*^9}, 3.897408023532889*^9, 
+   3.897408874743476*^9, 3.897421237641283*^9, {3.89747149241634*^9, 
+   3.897471498735655*^9}, {3.89747274788404*^9, 3.897472763128212*^9}, {
+   3.897483852459289*^9, 3.897483856585883*^9}},
+ CellLabel->"Out[7]=",ExpressionUUID->"a4d954b1-b2f1-48a5-a716-ddbf7803e658"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"05885b85-0d54-4a04-b775-cd9f9ab69966"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Analysis of solo DRep", "Section",
+ CellChangeTimes->{
+  3.897485400364689*^9},ExpressionUUID->"2e4a3f10-b864-4e52-ba9b-\
+222fe224c1f4"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"minDelegateforPlot", "=", "10"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"minDepositforPlot", "=", "500"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Manipulate", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"delegate", "=", 
+     RowBox[{"budget", "-", "deposit"}]}], ";", "\[IndentingNewLine]", 
+    RowBox[{"LogLogPlot", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Labeled", "[", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"Votes", "[", 
+           RowBox[{
+           "delegate", ",", "deposit", ",", "minDelegateforPlot", ",", 
+            "minDepositforPlot", ",", "wallets", ",", "powerDelegate", ",", 
+            "1"}], "]"}], ",", "\[IndentingNewLine]", 
+          RowBox[{"Text", "[", 
+           RowBox[{"Style", "[", 
+            RowBox[{"\"\<Votes\>\"", ",", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"ColorData", "[", 
+                RowBox[{"97", ",", "1"}], "]"}], ",", "Bold"}], "}"}]}], 
+            "]"}], "]"}]}], "]"}], ",", "\[IndentingNewLine]", 
+        RowBox[{"Labeled", "[", 
+         RowBox[{"delegate", ",", "\"\<delegate\>\""}], "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Labeled", "[", 
+         RowBox[{"deposit", ",", "\"\<deposit\>\""}], "]"}]}], "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{"wallets", ",", "1", ",", "50000"}], "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"AxesLabel", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"\"\<Wallets\>\"", ",", "\"\<Votes\>\""}], "}"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"PlotLegends", "\[Rule]", 
+         RowBox[{"SwatchLegend", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             SuperscriptBox["10", "1"], ",", 
+             SuperscriptBox["10", "2"], ",", 
+             SuperscriptBox["10", "3"], ",", 
+             SuperscriptBox["10", "4"], ",", 
+             SuperscriptBox["10", "5"]}], "}"}], ",", 
+           RowBox[{"LegendLabel", "\[Rule]", "\"\<Deposited\>\""}]}], "]"}]}],
+         ","}], "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"PlotRange", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"5", " ", 
+            SuperscriptBox["10", 
+             RowBox[{"-", "1"}]]}], ",", 
+           SuperscriptBox["10", "5"]}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{
+           SuperscriptBox["10", 
+            RowBox[{"-", "1"}]], ",", 
+           SuperscriptBox["10", "10"]}], "}"}]}], "}"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"PlotStyle", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"Line", ",", "Dashed", ",", "Dotted"}], "}"}]}]}], "]"}]}], 
+   ",", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"powerDelegate", ",", "0.5"}], "}"}], ",", "0.01", ",", ".99"}],
+     "}"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"budget", ",", 
+       SuperscriptBox["10", "6"]}], "}"}], ",", 
+     SuperscriptBox["10", "4"], ",", 
+     SuperscriptBox["10", "10"]}], "}"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"deposit", ",", 
+       RowBox[{"1", " ", 
+        SuperscriptBox["10", "3"]}]}], "}"}], ",", "minDepositforPlot", ",", 
+     SuperscriptBox["10", "9"]}], "}"}]}], "\[IndentingNewLine]", 
+  "]"}]}], "Input",
+ CellChangeTimes->{
+  3.896905520916265*^9, {3.8969062704434223`*^9, 3.8969063191836147`*^9}, {
+   3.896906372969219*^9, 3.896906558703273*^9}, {3.896906598403187*^9, 
+   3.8969066153928967`*^9}, {3.896906706993428*^9, 3.8969067077217827`*^9}, {
+   3.8969067874692593`*^9, 3.896906802981048*^9}, {3.896906868571308*^9, 
+   3.896906868633005*^9}, {3.896906905312064*^9, 3.896906908025069*^9}, {
+   3.896907013112605*^9, 3.8969070270276957`*^9}, {3.8969070624975452`*^9, 
+   3.8969071051112013`*^9}, {3.896907188318598*^9, 3.896907207715478*^9}, {
+   3.896907333943162*^9, 3.896907337383709*^9}, {3.896907373267892*^9, 
+   3.896907374315783*^9}, {3.896907647444927*^9, 3.8969076486363697`*^9}, {
+   3.8969077027762537`*^9, 3.8969077323792067`*^9}, {3.896907780209866*^9, 
+   3.8969078029524593`*^9}, {3.8969079275682497`*^9, 3.896907948311104*^9}, {
+   3.896908064117238*^9, 3.896908088832041*^9}, {3.897019580798115*^9, 
+   3.8970195814849453`*^9}, {3.897019709141786*^9, 3.897019744162919*^9}, {
+   3.897019821713418*^9, 3.897019848699358*^9}, {3.897019922281798*^9, 
+   3.8970199422554903`*^9}, {3.8970199837449903`*^9, 3.8970199887706223`*^9}, 
+   3.897020052501143*^9, {3.8970200979217863`*^9, 3.897020137459412*^9}, 
+   3.8970201678551188`*^9, {3.897020318868534*^9, 3.897020382666657*^9}, {
+   3.897020590939911*^9, 3.8970206069900417`*^9}, {3.8970206693420973`*^9, 
+   3.897020740118843*^9}, 3.8970209193026457`*^9, {3.8970211399108477`*^9, 
+   3.897021148805134*^9}, {3.897021191839469*^9, 3.897021192161847*^9}, {
+   3.897021332771801*^9, 3.8970213331563063`*^9}, {3.89702143411609*^9, 
+   3.897021436873028*^9}, {3.8970214677720013`*^9, 3.897021467903038*^9}, 
+   3.8970217424855223`*^9, 3.897073126157967*^9, {3.897073156775896*^9, 
+   3.897073156896908*^9}, {3.897073188710106*^9, 3.8970732471085377`*^9}, {
+   3.897075194512038*^9, 3.897075295215417*^9}, {3.89707533905097*^9, 
+   3.897075339368022*^9}, {3.897075378157394*^9, 3.89707539360387*^9}, {
+   3.8970754594291897`*^9, 3.897075475823295*^9}, {3.897075550175558*^9, 
+   3.8970755512512503`*^9}, {3.8970758981213417`*^9, 3.897075906957973*^9}, {
+   3.897075974622499*^9, 3.89707599129683*^9}, {3.8970760470036182`*^9, 
+   3.897076087383752*^9}, {3.897076362702688*^9, 3.897076422171937*^9}, {
+   3.8970765195408373`*^9, 3.897076539226955*^9}, {3.897076594480362*^9, 
+   3.897076658111754*^9}, {3.8970768043708487`*^9, 3.8970768700605307`*^9}, 
+   3.89707695042101*^9, {3.897077611282436*^9, 3.89707761830298*^9}, {
+   3.897077652899967*^9, 3.897077780890128*^9}, 3.8970785585266237`*^9, {
+   3.8970801217490892`*^9, 3.897080122412959*^9}, {3.897080684993021*^9, 
+   3.897080686510548*^9}, {3.897080850049074*^9, 3.8970810119683523`*^9}, 
+   3.89708144729667*^9, {3.89708161615106*^9, 3.897081617610466*^9}, {
+   3.897081661977108*^9, 3.8970816633387012`*^9}, {3.897081699151979*^9, 
+   3.8970816992220497`*^9}, {3.897081733751122*^9, 3.897081734201997*^9}, {
+   3.897081986548071*^9, 3.897081989541461*^9}, 3.8970820759668617`*^9, {
+   3.8970821611743*^9, 3.89708216260319*^9}, {3.8970822268216133`*^9, 
+   3.89708222879827*^9}, 3.897082444196368*^9, {3.897109110106936*^9, 
+   3.8971091545586853`*^9}, {3.8971092262745047`*^9, 3.897109364704484*^9}, {
+   3.897109499887726*^9, 3.8971095338427353`*^9}, {3.897109682899282*^9, 
+   3.897109685764184*^9}, 3.897109900486471*^9, 3.897110001335414*^9, {
+   3.8971100468112993`*^9, 3.897110054572928*^9}, {3.897110260934725*^9, 
+   3.8971102863672857`*^9}, {3.8971103998446207`*^9, 3.897110430172634*^9}, {
+   3.897110463882614*^9, 3.897110463935918*^9}, 3.8971105558135843`*^9, {
+   3.8971106335362797`*^9, 3.8971106399264402`*^9}, {3.89711078505599*^9, 
+   3.897110786986211*^9}, {3.897110827231462*^9, 3.897110853657907*^9}, {
+   3.897110890339644*^9, 3.89711094673426*^9}, {3.897110994512602*^9, 
+   3.897110994591227*^9}, {3.897208384415509*^9, 3.897208384575839*^9}, {
+   3.897209083045381*^9, 3.897209083204463*^9}, {3.897209498402965*^9, 
+   3.8972095368286467`*^9}, {3.897210891084565*^9, 3.897210905734447*^9}, 
+   3.897211296253993*^9, 3.897211608529111*^9, {3.8972152409702578`*^9, 
+   3.897215246052733*^9}, {3.8972153367412453`*^9, 3.897215340573422*^9}, {
+   3.897215631849545*^9, 3.897215756630039*^9}, {3.897215830835382*^9, 
+   3.897215840129361*^9}, {3.897216037865809*^9, 3.897216040079034*^9}, {
+   3.8973341978390636`*^9, 3.897334231586348*^9}, {3.897334494113666*^9, 
+   3.897334520683848*^9}, {3.897334693985372*^9, 3.897334704275929*^9}, 
+   3.89733496501047*^9, {3.8973350288398647`*^9, 3.8973350288867826`*^9}, {
+   3.897335060390065*^9, 3.89733510031289*^9}, {3.897336582414312*^9, 
+   3.8973365990407877`*^9}, {3.897337156085452*^9, 3.897337156464513*^9}, 
+   3.897406107742763*^9, {3.897406202703471*^9, 3.897406202845014*^9}, {
+   3.897406666423874*^9, 3.897406699703981*^9}, 3.897406740885867*^9, 
+   3.897407676184433*^9, {3.8974210990867653`*^9, 3.8974211324945173`*^9}, {
+   3.89745432500438*^9, 3.897454326832515*^9}},
+ CellLabel->"In[8]:=",ExpressionUUID->"07c5a1df-84c3-414a-a572-ac1a93cae89a"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"9543b501-4b20-45fa-9a38-089be9fa7325"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`budget$$ = 
+    2.0000000000000052`*^9, $CellContext`deposit$$ = 
+    9.999999999999208*^6, $CellContext`powerDelegate$$ = 0.5, Typeset`show$$ =
+     True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}, {{
+       Hold[$CellContext`budget$$], 1000000}, 10000, 10000000000}, {{
+       Hold[$CellContext`deposit$$], 1000}, 500, 1000000000}}, 
+    Typeset`size$$ = {540., {147., 155.}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, 
+      "Variables" :> {$CellContext`budget$$ = 1000000, $CellContext`deposit$$ = 
+        1000, $CellContext`powerDelegate$$ = 0.5}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, 
+      "Body" :> ($CellContext`delegate = $CellContext`budget$$ - \
+$CellContext`deposit$$; LogLogPlot[{
+          Labeled[
+           $CellContext`Votes[$CellContext`delegate, $CellContext`deposit$$, \
+$CellContext`minDelegateforPlot, $CellContext`minDepositforPlot, \
+$CellContext`wallets, $CellContext`powerDelegate$$, 1], 
+           Text[
+            Style["Votes", {
+              ColorData[97, 1], Bold}]]], 
+          Labeled[$CellContext`delegate, "delegate"], 
+          Labeled[$CellContext`deposit$$, "deposit"]}, {$CellContext`wallets, 
+          1, 50000}, AxesLabel -> {"Wallets", "Votes"}, 
+         PlotRange -> {{5/10, 10^5}, {10^(-1), 10^10}}, 
+         PlotStyle -> {Line, Dashed, Dotted}]), 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 
+         0.99}, {{$CellContext`budget$$, 1000000}, 10000, 
+         10000000000}, {{$CellContext`deposit$$, 1000}, 500, 1000000000}}, 
+      "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{606., {297., 305.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.897334968828725*^9, 3.8973350302980433`*^9, {3.897335075244175*^9, 
+   3.8973351020573483`*^9}, {3.897336588667447*^9, 3.897336601020878*^9}, 
+   3.897337164113246*^9, 3.897406122454364*^9, 3.897406204388988*^9, 
+   3.897406237016721*^9, 3.897406701503243*^9, 3.8974067495407133`*^9, 
+   3.8974074838280363`*^9, 3.8974076445619183`*^9, {3.897407678180303*^9, 
+   3.897407683205505*^9}, {3.897421102065712*^9, 3.897421143593594*^9}, {
+   3.897454330130299*^9, 3.897454335985291*^9}, 3.897478313147716*^9, 
+   3.8974784424085093`*^9, {3.8974838631417437`*^9, 3.897483867290251*^9}},
+ CellLabel->"Out[10]=",ExpressionUUID->"b7b3f1e3-9aef-492e-bc87-f09a7b7c3945"],
+
+Cell["\<\
+An important security question is whether a wealthy individual can run a \
+large number of pools and thereby circumvent the Sybil resistance. The \
+current supply of ADA is ~36 Billion.  If there is 50% participation in DRep \
+delegation and someone had 10% of the supply, that would be ~ 2 Billion ADA.
+\
+\>", "Text",
+ CellChangeTimes->{{3.8974783274699287`*^9, 3.897478358954851*^9}, {
+   3.897478415691041*^9, 3.897478428449992*^9}, {3.897478528057741*^9, 
+   3.897478757243108*^9}, {3.897479423380189*^9, 3.8974794764919167`*^9}, {
+   3.8974795768819227`*^9, 3.8974796102339993`*^9}, {3.8974796462885647`*^9, 
+   3.897479695173806*^9}, {3.897479771545961*^9, 3.8974797732831497`*^9}, {
+   3.8974799624662867`*^9, 3.897479963089473*^9}, {3.897480038111615*^9, 
+   3.897480077868764*^9}, 
+   3.8974855654659147`*^9},ExpressionUUID->"0ec0f514-230e-4229-9f89-\
+148c757c5674"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"c0beacb7-dbc0-493b-9330-eae9cd587f6c"],
+
+Cell[TextData[{
+ "So let's examine an individual or institution with 2 billion ADA to place \
+on the delegate pools and deposits across an unlimited number of DRep \
+wallets.\n\nIf 1 million of the budget is applied to the deposits, the votes \
+peaks at approximately 400 wallets. The one wallet votes of ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "5"], TraditionalForm]],ExpressionUUID->
+  "1f18f196-e50e-4c08-a502-cc463b9067b2"],
+ "increases to approximately ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["10", "6"], TraditionalForm]],ExpressionUUID->
+  "4c16b529-00a8-4d5d-a612-35c0c570df18"],
+ ". So there is only a factor of 10 increase despite the use of 400 wallets. \
+Each pool has approximately 5 million delegate ADA."
+}], "Text",
+ CellChangeTimes->{{3.8974783274699287`*^9, 3.897478358954851*^9}, {
+  3.897478415691041*^9, 3.897478428449992*^9}, {3.897478528057741*^9, 
+  3.897478757243108*^9}, {3.897479423380189*^9, 3.8974794764919167`*^9}, {
+  3.8974795768819227`*^9, 3.8974796102339993`*^9}, {3.8974796462885647`*^9, 
+  3.897479695173806*^9}, {3.897479771545961*^9, 3.8974797732831497`*^9}, {
+  3.8974799624662867`*^9, 3.897479963089473*^9}, {3.897480038111615*^9, 
+  3.897480077868764*^9}},ExpressionUUID->"adaa837e-2481-40b2-8858-\
+d6989b0eb875"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`budget$$ = 
+    2.0000000000000052`*^9, $CellContext`deposit$$ = 
+    1.0000000000003885`*^6, $CellContext`powerDelegate$$ = 0.5, 
+    Typeset`show$$ = True, Typeset`bookmarkList$$ = {}, 
+    Typeset`bookmarkMode$$ = "Menu", Typeset`animator$$, Typeset`animvar$$ = 
+    1, Typeset`name$$ = "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}, {{
+       Hold[$CellContext`budget$$], 1000000}, 10000, 10000000000}, {{
+       Hold[$CellContext`deposit$$], 1000}, 500, 1000000000}}, 
+    Typeset`size$$ = {540., {147., 155.}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, 
+      "Variables" :> {$CellContext`budget$$ = 1000000, $CellContext`deposit$$ = 
+        1000, $CellContext`powerDelegate$$ = 0.5}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, 
+      "Body" :> ($CellContext`delegate = $CellContext`budget$$ - \
+$CellContext`deposit$$; LogLogPlot[{
+          Labeled[
+           $CellContext`Votes[$CellContext`delegate, $CellContext`deposit$$, \
+$CellContext`minDelegateforPlot, $CellContext`minDepositforPlot, \
+$CellContext`wallets, $CellContext`powerDelegate$$, 1], 
+           Text[
+            Style["Votes", {
+              ColorData[97, 1], Bold}]]], 
+          Labeled[$CellContext`delegate, "delegate"], 
+          Labeled[$CellContext`deposit$$, "deposit"]}, {$CellContext`wallets, 
+          1, 50000}, AxesLabel -> {"Wallets", "Votes"}, 
+         PlotRange -> {{5/10, 10^5}, {10^(-1), 10^10}}, 
+         PlotStyle -> {Line, Dashed, Dotted}]), 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 
+         0.99}, {{$CellContext`budget$$, 1000000}, 10000, 
+         10000000000}, {{$CellContext`deposit$$, 1000}, 500, 1000000000}}, 
+      "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{606., {297., 305.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.897334968828725*^9, 3.8973350302980433`*^9, {3.897335075244175*^9, 
+   3.8973351020573483`*^9}, {3.897336588667447*^9, 3.897336601020878*^9}, 
+   3.897337164113246*^9, 3.897406122454364*^9, 3.897406204388988*^9, 
+   3.897406237016721*^9, 3.897406701503243*^9, 3.8974067495407133`*^9, 
+   3.8974074838280363`*^9, 3.8974076445619183`*^9, {3.897407678180303*^9, 
+   3.897407683205505*^9}, {3.897421102065712*^9, 3.897421143593594*^9}, {
+   3.897454330130299*^9, 3.897454335985291*^9}, 3.897478313147716*^9, 
+   3.8974784424085093`*^9, {3.8974838765055437`*^9, 3.897483880232191*^9}},
+ CellLabel->"Out[10]=",ExpressionUUID->"2b6c177c-f655-46fe-a9ef-4055041878dd"],
+
+Cell["", "Text",
+ CellChangeTimes->{{3.897478863971119*^9, 3.897478972364677*^9}, {
+   3.897479020464731*^9, 3.897479056902556*^9}, {3.897479089069927*^9, 
+   3.897479158963607*^9}, {3.897479246116045*^9, 3.89747925520711*^9}, {
+   3.8974802893139067`*^9, 3.897480303613188*^9}, {3.8974803894606237`*^9, 
+   3.8974804346622353`*^9}, {3.897480465747406*^9, 3.897480599108206*^9}, 
+   3.897484344789008*^9},ExpressionUUID->"58146ced-b2be-4bf8-889a-\
+aeb78b369c07"],
+
+Cell["", "PageBreak",
+ PageBreakBelow->True,ExpressionUUID->"52ff1f88-ed88-4109-9c99-a6dc5b8307ba"],
+
+Cell["\<\
+If the investment in the deposit is increased to 10 million (and the delegate \
+is therefore 2 billion - 10 million), the votes peak at approximately 10,000 \
+wallets.  The votes are ~5 million, a factor of ~x50 over the single wallet \
+votes. Across 10,000 wallets the delegation per wallet has dropped to ~200,000.
+
+If increased Sybil resistance is desired, this is easily achieved by \
+increasing the minimum deposit.  A minimum deposit of 1000 or even 5000 ADA \
+may be desirable but it would put further restrictions on who in the \
+community can afford the deposit.\
+\>", "Text",
+ CellChangeTimes->{{3.897478863971119*^9, 3.897478972364677*^9}, {
+  3.897479020464731*^9, 3.897479056902556*^9}, {3.897479089069927*^9, 
+  3.897479158963607*^9}, {3.897479246116045*^9, 3.89747925520711*^9}, {
+  3.8974802893139067`*^9, 3.897480303613188*^9}, {3.8974803894606237`*^9, 
+  3.8974804346622353`*^9}, {3.897480465747406*^9, 
+  3.897480599108206*^9}},ExpressionUUID->"4e4b99ef-72ac-4fcf-a2c2-\
+c777fd8446bf"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`budget$$ = 
+    2.0000000000000052`*^9, $CellContext`deposit$$ = 
+    9.999999999999208*^6, $CellContext`powerDelegate$$ = 0.5, Typeset`show$$ =
+     True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`powerDelegate$$], 0.5}, 0.01, 0.99}, {{
+       Hold[$CellContext`budget$$], 1000000}, 10000, 10000000000}, {{
+       Hold[$CellContext`deposit$$], 1000}, 500, 1000000000}}, 
+    Typeset`size$$ = {540., {147., 155.}}, Typeset`update$$ = 0, 
+    Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, 
+      "Variables" :> {$CellContext`budget$$ = 1000000, $CellContext`deposit$$ = 
+        1000, $CellContext`powerDelegate$$ = 0.5}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, 
+      "Body" :> ($CellContext`delegate = $CellContext`budget$$ - \
+$CellContext`deposit$$; LogLogPlot[{
+          Labeled[
+           $CellContext`Votes[$CellContext`delegate, $CellContext`deposit$$, \
+$CellContext`minDelegateforPlot, $CellContext`minDepositforPlot, \
+$CellContext`wallets, $CellContext`powerDelegate$$, 1], 
+           Text[
+            Style["Votes", {
+              ColorData[97, 1], Bold}]]], 
+          Labeled[$CellContext`delegate, "delegate"], 
+          Labeled[$CellContext`deposit$$, "deposit"]}, {$CellContext`wallets, 
+          1, 50000}, AxesLabel -> {"Wallets", "Votes"}, 
+         PlotRange -> {{5/10, 10^5}, {10^(-1), 10^10}}, 
+         PlotStyle -> {Line, Dashed, Dotted}]), 
+      "Specifications" :> {{{$CellContext`powerDelegate$$, 0.5}, 0.01, 
+         0.99}, {{$CellContext`budget$$, 1000000}, 10000, 
+         10000000000}, {{$CellContext`deposit$$, 1000}, 500, 1000000000}}, 
+      "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{606., {297., 305.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.897334968828725*^9, 3.8973350302980433`*^9, {3.897335075244175*^9, 
+   3.8973351020573483`*^9}, {3.897336588667447*^9, 3.897336601020878*^9}, 
+   3.897337164113246*^9, 3.897406122454364*^9, 3.897406204388988*^9, 
+   3.897406237016721*^9, 3.897406701503243*^9, 3.8974067495407133`*^9, 
+   3.8974074838280363`*^9, 3.8974076445619183`*^9, {3.897407678180303*^9, 
+   3.897407683205505*^9}, {3.897421102065712*^9, 3.897421143593594*^9}, {
+   3.897454330130299*^9, 3.897454335985291*^9}, 3.897478313147716*^9, 
+   3.8974784424085093`*^9, {3.897483889021944*^9, 3.897483891625147*^9}},
+ CellLabel->"Out[10]=",ExpressionUUID->"42d6ba2e-c6a0-499d-a639-6c02a4984bcd"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{937, 778},
+WindowMargins->{{19, Automatic}, {11, Automatic}},
+PrintingCopies->1,
+PrintingPageRange->{1, Automatic},
+Magnification:>1.5 Inherited,
+FrontEndVersion->"13.0 for Mac OS X x86 (64-bit) (December 2, 2021)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"800afb2e-55e1-4482-941b-b433e6985f1d"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 414, 7, 354, "Title",ExpressionUUID->"59646771-ac40-4263-b5a8-46b9fb802fb1"],
+Cell[997, 31, 551, 13, 269, "Subtitle",ExpressionUUID->"d547ec15-bed8-4072-a89e-68173eea87b0"],
+Cell[1551, 46, 370, 6, 122, "Text",ExpressionUUID->"f65e7e5f-82f6-4274-a1f6-e48e1af08378"],
+Cell[1924, 54, 6625, 122, 1897, "Text",ExpressionUUID->"41f8365e-1730-4787-bb3b-65c643146435"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8586, 181, 417, 7, 106, "Title",ExpressionUUID->"45258534-d5b7-4fd8-a32a-36d954a4617d"],
+Cell[9006, 190, 99, 1, 1, "PageBreak",ExpressionUUID->"25e335da-3636-4e91-a1c2-4c44634f4203",
+ PageBreakBelow->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9142, 196, 475, 7, 106, "Title",ExpressionUUID->"fca7c2a1-32c7-447c-9afd-538ea6cdc335"],
+Cell[9620, 205, 4928, 114, 1113, "Text",ExpressionUUID->"5f5074db-006f-4ecb-aaa5-f8696dbab643"],
+Cell[14551, 321, 4377, 87, 463, "Input",ExpressionUUID->"9a360686-5cc1-495c-8b28-b307b7f0e524"],
+Cell[CellGroupData[{
+Cell[18953, 412, 170, 3, 101, "Section",ExpressionUUID->"59a407b4-8ac6-4fa4-b7cf-f18b2de52ed4"],
+Cell[19126, 417, 99, 1, 1, "PageBreak",ExpressionUUID->"6666e7eb-7d6a-4c4c-85ed-46d6aa2faaff",
+ PageBreakBelow->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[19262, 423, 237, 4, 101, "Section",ExpressionUUID->"d18b67b8-0003-41a2-8bee-7840cf29322e"],
+Cell[19502, 429, 866, 16, 364, "Text",ExpressionUUID->"b5076abe-ff12-4b0e-8338-a3f6b26a5402"],
+Cell[CellGroupData[{
+Cell[20393, 449, 7087, 143, 480, "Input",ExpressionUUID->"45f2b2cf-4851-4c3d-8a0c-8f59d737f934"],
+Cell[27483, 594, 5070, 85, 495, "Output",ExpressionUUID->"26f248ef-f451-4f39-91a6-4baf25703646"]
+}, Open  ]],
+Cell[32568, 682, 313, 5, 53, "Text",ExpressionUUID->"8e83b0e8-0b3b-4e41-936e-4a1d3978aa62"],
+Cell[32884, 689, 99, 1, 1, "PageBreak",ExpressionUUID->"a532400f-1f6f-47fb-9973-0580c3a12af4",
+ PageBreakBelow->True],
+Cell[32986, 692, 1263, 33, 160, "Text",ExpressionUUID->"deea16f5-5421-4d80-a9a4-885b1e58aa44"],
+Cell[34252, 727, 4980, 84, 539, "Output",ExpressionUUID->"e27064f5-a4c6-4c25-8e82-ec2a47c711ed"],
+Cell[39235, 813, 403, 8, 122, "Text",ExpressionUUID->"938f531f-5107-4f0b-ac80-daae846b804f"],
+Cell[39641, 823, 4999, 84, 539, "Output",ExpressionUUID->"b58cbeda-c07f-4356-bd52-42ace5d7d6b8"],
+Cell[44643, 909, 216, 4, 53, "Text",ExpressionUUID->"f9ae8a56-2fb8-48b7-9671-7408af0067d8"],
+Cell[44862, 915, 99, 1, 1, "PageBreak",ExpressionUUID->"51190c05-f61f-4865-8421-a26ca4a91ae5",
+ PageBreakBelow->True],
+Cell[44964, 918, 474, 9, 157, "Text",ExpressionUUID->"33f5158b-a69d-4a8f-9a5c-f982eb352516"],
+Cell[45441, 929, 4983, 84, 539, "Output",ExpressionUUID->"a83576d3-c5a4-417b-965f-e86f9a975756"],
+Cell[50427, 1015, 99, 1, 1, "PageBreak",ExpressionUUID->"d12c885e-5354-40ca-b49d-98c7e7e7955c",
+ PageBreakBelow->True],
+Cell[50529, 1018, 2106, 54, 300, "Text",ExpressionUUID->"cc52cca8-eff2-440a-a15b-a50fbc378b18"],
+Cell[52638, 1074, 4980, 84, 539, "Output",ExpressionUUID->"cce1c745-926f-4214-ac67-da9c0bf8c773"],
+Cell[57621, 1160, 99, 1, 1, "PageBreak",ExpressionUUID->"4a67a976-adbe-48b9-a3f6-a514feeff3c5",
+ PageBreakBelow->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[57757, 1166, 192, 3, 101, "Section",ExpressionUUID->"f3e48be8-7710-47ed-8b84-0efce6308c16"],
+Cell[CellGroupData[{
+Cell[57974, 1173, 8195, 156, 597, "Input",ExpressionUUID->"7a32ef50-ceec-4c55-86ac-05db0cdb19da"],
+Cell[66172, 1331, 3448, 63, 630, "Output",ExpressionUUID->"8a4e48a3-bfe1-46d0-8171-b0bbe4112c93"]
+}, Open  ]],
+Cell[69635, 1397, 99, 1, 1, "PageBreak",ExpressionUUID->"12357601-34c8-4d29-8c7a-694880be5d9e",
+ PageBreakBelow->True],
+Cell[69737, 1400, 1079, 23, 195, "Text",ExpressionUUID->"77ba72e8-c8e4-4d5e-836d-5d146a6f8db0"],
+Cell[70819, 1425, 3450, 63, 647, "Output",ExpressionUUID->"2f12b17d-247b-4aef-b13d-44842a3bd602"],
+Cell[74272, 1490, 165, 3, 53, "Text",ExpressionUUID->"2da0988d-2b78-4727-bb14-21287e327609"],
+Cell[74440, 1495, 99, 1, 1, "PageBreak",ExpressionUUID->"1341db52-de8f-4426-8a1e-d867a8e712c6",
+ PageBreakBelow->True],
+Cell[74542, 1498, 432, 8, 157, "Text",ExpressionUUID->"4d94f4bd-bb9a-40aa-ac8e-96966c122ab1"],
+Cell[74977, 1508, 3448, 63, 647, "Output",ExpressionUUID->"10c2c26d-3c64-4556-b8f4-d45ecf333b44"],
+Cell[78428, 1573, 165, 3, 53, "Text",ExpressionUUID->"cf180627-e2ef-4239-8eb6-5170ada38924"],
+Cell[78596, 1578, 99, 1, 1, "PageBreak",ExpressionUUID->"84d1888d-9d32-4a53-b407-a64aafbf581e",
+ PageBreakBelow->True],
+Cell[78698, 1581, 338, 7, 122, "Text",ExpressionUUID->"4d8e09c2-4da9-48b0-a614-045ec3bde2c7"],
+Cell[79039, 1590, 3449, 63, 647, "Output",ExpressionUUID->"a4d954b1-b2f1-48a5-a716-ddbf7803e658"],
+Cell[82491, 1655, 99, 1, 1, "PageBreak",ExpressionUUID->"05885b85-0d54-4a04-b775-cd9f9ab69966",
+ PageBreakBelow->True]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[82627, 1661, 142, 3, 101, "Section",ExpressionUUID->"2e4a3f10-b864-4e52-ba9b-222fe224c1f4"],
+Cell[82772, 1666, 8619, 163, 697, "Input",ExpressionUUID->"07c5a1df-84c3-414a-a572-ac1a93cae89a"],
+Cell[91394, 1831, 99, 1, 1, "PageBreak",ExpressionUUID->"9543b501-4b20-45fa-9a38-089be9fa7325",
+ PageBreakBelow->True],
+Cell[91496, 1834, 3309, 62, 647, "Output",ExpressionUUID->"b7b3f1e3-9aef-492e-bc87-f09a7b7c3945"],
+Cell[94808, 1898, 885, 15, 191, "Text",ExpressionUUID->"0ec0f514-230e-4229-9f89-148c757c5674"],
+Cell[95696, 1915, 99, 1, 6, "PageBreak",ExpressionUUID->"c0beacb7-dbc0-493b-9330-eae9cd587f6c",
+ PageBreakBelow->True],
+Cell[95798, 1918, 1274, 24, 262, "Text",ExpressionUUID->"adaa837e-2481-40b2-8858-d6989b0eb875"],
+Cell[97075, 1944, 3311, 62, 647, "Output",ExpressionUUID->"2b6c177c-f655-46fe-a9ef-4055041878dd"],
+Cell[100389, 2008, 462, 7, 53, "Text",ExpressionUUID->"58146ced-b2be-4bf8-889a-aeb78b369c07"],
+Cell[100854, 2017, 99, 1, 1, "PageBreak",ExpressionUUID->"52ff1f88-ed88-4109-9c99-a6dc5b8307ba",
+ PageBreakBelow->True],
+Cell[100956, 2020, 1014, 17, 329, "Text",ExpressionUUID->"4e4b99ef-72ac-4fcf-a2c2-c777fd8446bf"],
+Cell[101973, 2039, 3307, 62, 647, "Output",ExpressionUUID->"42d6ba2e-c6a0-499d-a639-6c02a4984bcd"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
